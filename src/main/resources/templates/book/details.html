@@ -20,7 +20,7 @@
                     <strong>ID:</strong> <span th:text="${book.id}"></span><br>
                     <strong>Author:</strong> <span th:text="${book.author}"></span><br>
                     <strong>Price:</strong> $<span th:text="${book.price}"></span><br>
-                    <strong>Category:</strong> <span th:text="${book.category}"></span>
+                    <strong>Category:</strong> <span th:text="${book.category.name}"></span>
                 </p>
                 <a th:href="@{/books/edit/{id}(id=${book.id})}" class="btn btn-primary">Edit</a>
                 <a th:href="@{/books/delete/{id}(id=${book.id})}" 
