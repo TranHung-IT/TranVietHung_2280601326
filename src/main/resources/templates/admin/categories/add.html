@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Category</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    <th:block th:replace="~{layout::admin-sidebar-css}"></th:block>
+</head>
+<>
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="admin-layout">
+        <th:block th:replace="~{layout::admin-sidebar}"></th:block>
+        
+        <div class="admin-content">
+            <div class="container-fluid p-4">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 col-md-8">
+                        <div class="card shadow-lg">
+                            <div class="card-header text-center py-3">
+                                <h2 class="mb-0"><i class="bi bi-plus-circle"></i> Add New Category</h2>
+                            </div>
+                            <div class="card-body p-4">
+                                <!-- Error Message -->
+                                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                                
+                                <form th:action="@{/admin/categories/add}" th:object="${category}" method="post">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">
+                                            <i class="bi bi-tag-fill"></i> Category Name:<span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="name" 
+                                               th:field="*{name}" 
+                                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''" 
+                                               placeholder="Enter category name"
+                                               required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                        <button type="submit" class="btn btn-success btn-lg me-2">
+                                            <i class="bi bi-check-circle"></i> Save Category
+                                        </button>
+                                        <a href="/admin/categories" class="btn btn-secondary btn-lg">
+                                            <i class="bi bi-x-circle"></i> Cancel
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <th:block th:replace="~{layout::footer}"></th:block>
+</body>
+</html>

@@ -41,4 +41,8 @@ public class CategoryService {
     public void deleteCategoryById(Long id) {
         categoryRepository.deleteById(id);
     }
+
+    public long countAllCategories() {
+        return categoryRepository.count();
+    }
 }

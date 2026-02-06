@@ -8,41 +8,164 @@
     <th:block th:replace="~{layout::link-css}"></th:block>
     <th:block th:replace="~{layout::custom-css}"></th:block>
 </head>
-<body>
+<body class="d-flex flex-column" style="min-height: 100vh;">
     <th:block th:replace="~{layout::header}"></th:block>
 
-    <div class="container mt-5">
-        <h2>Edit Book</h2>
-        <form th:action="@{/books/edit}" th:object="${book}" method="post">
-            <input type="hidden" th:field="*{id}">
-            <div class="mb-3">
-                <label for="title" class="form-label">Title:<span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="title" th:field="*{title}" th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''" required>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card shadow-lg">
+                    <div class="card-header text-center py-3">
+                        <h2 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Book</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/books/edit}" th:object="${book}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" th:field="*{id}">
+                            
+                            <div class="mb-3">
+                                <label for="title" class="form-label"><i class="bi bi-book"></i> Title:<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="title" th:field="*{title}" th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="author" class="form-label"><i class="bi bi-person"></i> Author:<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="author" th:field="*{author}" th:classappend="${#fields.hasErrors('author')} ? 'is-invalid' : ''" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="price" class="form-label"><i class="bi bi-cash"></i> Price:<span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="price" th:field="*{price}" th:classappend="${#fields.hasErrors('price')} ? 'is-invalid' : ''" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="category" class="form-label"><i class="bi bi-tag"></i> Category:<span class="text-danger">*</span></label>
+                                <select class="form-control" id="category" th:field="*{category.id}" th:classappend="${#fields.hasErrors('category')} ? 'is-invalid' : ''" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+                            </div>
+                            
+                            <!-- Hiển thị ảnh hiện tại -->
+                            <div class="mb-3" th:if="${book.images != null && !book.images.isEmpty()}">
+                                <label class="form-label"><i class="bi bi-images"></i> Ảnh hiện tại:</label>
+                                <div class="row">
+                                    <div class="col-md-3 mb-3" th:each="image : ${book.images}">
+                                        <div class="card">
+                                            <img th:src="@{${image.imageUrl}}" class="card-img-top" alt="Book image" style="height: 150px; object-fit: cover;">
+                                            <div class="card-body p-2">
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input" name="deleteImageIds" th:value="${image.id}" th:id="'delete-' + ${image.id}">
+                                                    <label class="form-check-label" th:for="'delete-' + ${image.id}">
+                                                        <small>Xóa ảnh này</small>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Upload ảnh mới -->
+                            <div class="mb-3">
+                                <label for="imageFiles" class="form-label"><i class="bi bi-images"></i> Thêm ảnh mới (Tối đa 5 ảnh):</label>
+                                <input type="file" class="form-control" id="imageFiles" name="imageFiles" multiple accept="image/*" onchange="checkFileCount(this, 5)">
+                                <small class="form-text text-muted">Chọn tối đa 5 ảnh cùng lúc. Định dạng: JPG, PNG, GIF, WEBP</small>
+                            </div>
+                            
+                            <!-- Video hiện tại -->
+                            <div class="mb-3" th:if="${book.video != null}">
+                                <label class="form-label"><i class="bi bi-camera-video"></i> Video hiện tại:</label>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <video controls style="max-width: 100%; max-height: 300px;">
+                                            <source th:src="@{${book.video.videoUrl}}" type="video/mp4">
+                                            Trình duyệt không hỗ trợ video.
+                                        </video>
+                                        <div class="form-check mt-2">
+                                            <input type="checkbox" class="form-check-input" name="deleteVideo" value="true" id="deleteVideo">
+                                            <label class="form-check-label" for="deleteVideo">
+                                                Xóa video này
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Upload video mới -->
+                            <div class="mb-3">
+                                <label for="videoFile" class="form-label"><i class="bi bi-camera-video"></i> <span th:if="${book.video != null}">Thay thế</span><span th:unless="${book.video != null}">Thêm</span> video (Tối đa 1 video, 60 giây):</label>
+                                <input type="file" class="form-control" id="videoFile" name="videoFile" accept="video/*">
+                                <small class="form-text text-muted">Chọn 1 video duy nhất. Tối đa 50MB, không quá 60 giây. Định dạng: MP4, WEBM, OGG</small>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg me-2">
+                                    <i class="bi bi-check-circle"></i> Update Book
+                                </button>
+                                <a href="/books" class="btn btn-secondary btn-lg">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="author" class="form-label">Author:<span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="author" th:field="*{author}" th:classappend="${#fields.hasErrors('author')} ? 'is-invalid' : ''" required>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></div>
-            </div>
-            <div class="mb-3">
-                <label for="price" class="form-label">Price:<span class="text-danger">*</span></label>
-                <input type="number" step="0.01" class="form-control" id="price" th:field="*{price}" th:classappend="${#fields.hasErrors('price')} ? 'is-invalid' : ''" required>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
-            </div>
-            <div class="mb-3">
-                <label for="category" class="form-label">Category:<span class="text-danger">*</span></label>
-                <select class="form-control" id="category" th:field="*{category.id}" th:classappend="${#fields.hasErrors('category')} ? 'is-invalid' : ''" required>
-                    <option value="">-- Select Category --</option>
-                    <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
-                </select>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
-            </div>
-            <button type="submit" class="btn btn-primary">Update Book</button>
-            <a href="/books" class="btn btn-secondary">Cancel</a>
-        </form>
+        </div>
     </div>
 
+    <div style="flex-grow: 1;"></div>
     <th:block th:replace="~{layout::footer}"></th:block>
+    
+    <script>
+    function checkFileCount(input, maxFiles) {
+        if (input.files.length > maxFiles) {
+            alert(`Bạn chỉ có thể chọn tối đa ${maxFiles} ảnh cùng lúc`);
+            input.value = '';
+        }
+    }
+    
+    // Preview data using REST API format
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const bookIdInput = document.querySelector('input[type="hidden"][name="id"]');
+        const titleInput = document.getElementById('title');
+        const authorInput = document.getElementById('author');
+        const priceInput = document.getElementById('price');
+        const categorySelect = document.getElementById('category');
+        
+        // Add API Preview button
+        const submitButton = form.querySelector('button[type="submit"]');
+        const previewBtn = document.createElement('button');
+        previewBtn.type = 'button';
+        previewBtn.className = 'btn btn-info btn-lg me-2';
+        previewBtn.innerHTML = '<i class="bi bi-eye"></i> Preview API Data';
+        submitButton.parentElement.insertBefore(previewBtn, submitButton);
+        
+        previewBtn.addEventListener('click', function() {
+            const bookData = {
+                title: titleInput.value,
+                author: authorInput.value,
+                price: parseFloat(priceInput.value),
+                categoryId: parseInt(categorySelect.value)
+            };
+            
+            if (!bookData.title || !bookData.author || !bookData.price || !bookData.categoryId) {
+                alert('Please fill in all required fields!');
+                return;
+            }
+            
+            const bookId = bookIdInput ? bookIdInput.value : 'N/A';
+            
+            // Show preview in alert
+            const preview = `📚 REST API Preview\n\nEndpoint: PUT /api/v1/books/${bookId}\nContent-Type: application/json\n\nRequest Body:\n${JSON.stringify(bookData, null, 2)}`;
+            alert(preview);
+            console.log('API Preview:', bookData);
+        });
+    });
+    </script>
 </body>
 </html>

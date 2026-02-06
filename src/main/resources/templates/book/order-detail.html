@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết đơn hàng</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        .container {
+            background-color: #16213e;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .order-header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: #e8e8e8;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid #2d4059;
+        }
+        .order-header h2 {
+            color: #eb0808;
+        }
+        .info-card {
+            border-left: 4px solid #0f3460;
+            background: #1f2b3f;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #e8e8e8;
+        }
+        .info-card strong {
+            color: #ffffff;
+        }
+        .card {
+            border: 1px solid #2d4059;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background-color: #16213e;
+        }
+        .card-header {
+            border-bottom: 2px solid #2d4059;
+            font-weight: 600;
+        }
+        .card-header.bg-primary { background-color: #0f3460 !important; color: #ffffff !important; }
+        .card-header.bg-success { background-color: #16697a !important; color: #ffffff !important; }
+        .card-header.bg-info    { background-color: #2d4059 !important; color: #ffffff !important; }
+        .card-body { background-color: #1f2b3f; color: #e8e8e8; }
+        .book-item-row {
+            border-bottom: 1px solid #2d4059;
+            padding: 15px 0;
+            background-color: #1f2b3f;
+        }
+        .book-item-row:last-child { border-bottom: none; }
+        .book-item-row:hover { background-color: #253447; }
+        .book-item-row h6 { color: #ffffff; }
+        .book-placeholder {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            border: 2px solid #2d4059;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffd700;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .text-danger { color: #ff6b6b !important; }
+        .btn-primary {
+            background-color: #0f3460;
+            border-color: #0f3460;
+        }
+        .btn-primary:hover {
+            background-color: #16213e;
+            border-color: #16213e;
+        }
+        .btn-outline-secondary {
+            color: #e8e8e8;
+            border-color: #2d4059;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #2d4059;
+            border-color: #2d4059;
+            color: #ffffff;
+        }
+        .alert-success {
+            background-color: #16697a;
+            color: #ffffff;
+            border-color: #1a8a9f;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="container mt-4 mb-5">
+        <!-- Thông báo thành công -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <!-- Header đơn hàng -->
+        <div class="order-header">
+            <h2><i class="bi bi-receipt"></i> Chi tiết đơn hàng #<span th:text="${invoice?.id} ?: 'N/A'"></span></h2>
+            <p class="mb-0">
+                <i class="bi bi-calendar3"></i> 
+                Ngày đặt: <span th:text="${invoice?.invoiceDate != null} ? ${#dates.format(invoice.invoiceDate, 'dd/MM/yyyy HH:mm')} : 'Chưa có'"></span>
+            </p>
+        </div>
+        
+        <div class="row">
+            <!-- Thông tin người nhận -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-person-circle"></i> Thông tin người nhận</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-card">
+                            <p class="mb-2"><strong><i class="bi bi-person"></i> Họ tên:</strong> <span th:text="${invoice?.customerName} ?: 'Chưa có'"></span></p>
+                            <p class="mb-2"><strong><i class="bi bi-telephone"></i> Số điện thoại:</strong> <span th:text="${invoice?.customerPhone} ?: 'Chưa có'"></span></p>
+                            <p class="mb-2"><strong><i class="bi bi-envelope"></i> Email:</strong> <span th:text="${invoice?.customerEmail} ?: 'Chưa có'"></span></p>
+                            <p class="mb-0"><strong><i class="bi bi-geo-alt"></i> Địa chỉ:</strong> <span th:text="${invoice?.customerAddress} ?: 'Chưa có'"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phương thức thanh toán -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-credit-card"></i> Thanh toán</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-card">
+                            <p class="mb-2">
+                                <strong>Phương thức:</strong> 
+                                <span th:switch="${invoice?.paymentMethod}">
+                                    <span th:case="'COD'"><i class="bi bi-cash-coin text-success"></i> Thanh toán khi nhận hàng (COD)</span>
+                                    <span th:case="'BANK_TRANSFER'"><i class="bi bi-bank text-primary"></i> Chuyển khoản ngân hàng</span>
+                                    <span th:case="'E_WALLET'"><i class="bi bi-wallet2 text-warning"></i> Ví điện tử</span>
+                                    <span th:case="'CREDIT_CARD'"><i class="bi bi-credit-card-2-front text-danger"></i> Thẻ tín dụng/Ghi nợ</span>
+                                    <span th:case="*">Không xác định</span>
+                                </span>
+                            </p>
+                            <hr>
+                            <h4 class="mb-0">
+                                <strong>Tổng tiền:</strong> 
+                                <span class="text-danger" th:text="${invoice?.total != null} ? ${#numbers.formatDecimal(invoice.total, 0, 'COMMA', 0, 'POINT')} + ' đ' : '0 đ'"></span>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chi tiết sản phẩm -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-box-seam"></i> Chi tiết sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <div th:each="item, iterStat : ${invoice?.itemInvoices} ?: ${#lists.empty()}">
+                    <div class="book-item-row">
+                        <div class="row align-items-center">
+                            <div class="col-md-1 text-center">
+                                <strong th:text="${iterStat.index + 1}"></strong>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="book-placeholder">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <h6 class="mb-1" th:text="${item.book != null ? item.book.title : 'Sản phẩm'}">Book Title</h6>
+                                <p class="text-muted mb-0">
+                                    <small th:if="${item.book != null}">Tác giả: <span th:text="${item.book.author}">Author</span></small>
+                                    <small th:if="${item.book == null}">Thông tin không khả dụng</small>
+                                </p>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <p class="mb-0" th:if="${item?.book?.price != null}">
+                                    <span th:text="${#numbers.formatDecimal(item.book.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span><br>
+                                    <small class="text-muted">x <span th:text="${item?.quantity} ?: 1"></span></small>
+                                </p>
+                                <p class="mb-0" th:unless="${item?.book?.price != null}">
+                                    <small class="text-muted">Số lượng: <span th:text="${item?.quantity} ?: 1"></span></small>
+                                </p>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <h6 class="text-danger mb-0" th:if="${item?.book?.price != null}">
+                                    <span th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                </h6>
+                                <h6 class="text-danger mb-0" th:unless="${item?.book?.price != null}">N/A</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Không có sản phẩm -->
+                <div th:if="${#lists.isEmpty(invoice?.itemInvoices)}" class="text-center py-4">
+                    <p class="text-muted">Đơn hàng này chưa có sản phẩm nào.</p>
+                </div>
+
+                <!-- Tổng kết -->
+                <div class="row mt-4">
+                    <div class="col-md-8"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Nút hành động -->
+        <div class="mt-4 text-center">
+            <a th:href="@{/cart/orders}" class="btn btn-primary btn-lg me-3">
+                <i class="bi bi-list-ul"></i> Xem lịch sử đơn hàng
+            </a>
+            <a th:href="@{/books}" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-shop"></i> Tiếp tục mua sắm
+            </a>
+        </div>
+    </div>
+    
+    <th:block th:replace="~{layout::footer}"></th:block>
+</body>
+</html>

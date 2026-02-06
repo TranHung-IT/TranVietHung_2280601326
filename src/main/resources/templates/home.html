@@ -1,29 +1,21 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ỨNG DỤNG QUẢN LÝ SÁCH</title>
+    <title>HUTECH Book Management</title>
     <th:block th:replace="~{layout::link-css}"></th:block>
     <th:block th:replace="~{layout::custom-css}"></th:block>
 </head>
-<body>
+<body class="d-flex flex-column" style="min-height: 100vh;">
     <th:block th:replace="~{layout::header}"></th:block>
-    <div class="container">
-        <nav class="navbar navbar-light bg-light">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    TRANG CHỦ ỨNG DỤNG QUẢN LÝ SÁCH - KẾT NỐI CSDL MS SQL SERVER
-                </a>
-            </div>
-        </nav>
-    </div>
-    <th:block th:replace="~{layout::footer}"></th:block>
-</body>
-</html>
-        <div class="jumbotron text-center">
-            <h1 class="display-4">Welcome to HUTECH Book Management System</h1>
+    
+    <div class="container my-5">
+        <div class="jumbotron text-center mb-5">
+            <h1 class="display-4"><i class="bi bi-book-half"></i> Welcome to HUTECH Book Management System</h1>
             <p class="lead">Manage your books efficiently with our simple and powerful system.</p>
             <hr class="my-4">
             <p>Choose an option below to get started:</p>
@@ -31,43 +23,183 @@
                 <a class="btn btn-primary btn-lg me-3" href="/books" role="button">
                     <i class="bi bi-book"></i> View All Books
                 </a>
-                <a class="btn btn-success btn-lg" href="/books/add" role="button">
+                <a class="btn btn-success btn-lg" href="/books/add" role="button" sec:authorize="hasAuthority('ADMIN')">
                     <i class="bi bi-plus-circle"></i> Add New Book
                 </a>
             </div>
         </div>
 
         <div class="row mt-5">
-            <div class="col-md-4">
-                <div class="card text-center">
+            <div class="col-md-3 mb-4">
+                <div class="card text-center h-100">
                     <div class="card-body">
+                        <i class="bi bi-book fs-1 text-primary mb-3"></i>
                         <h5 class="card-title">Browse Books</h5>
                         <p class="card-text">View and manage your complete book collection.</p>
-                        <a href="/books" class="btn btn-outline-primary">Go to List</a>
+                        <a href="/books" class="btn btn-primary"><i class="bi bi-arrow-right"></i> Go to List</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-center">
+            <div class="col-md-3 mb-4" sec:authorize="hasAuthority('ADMIN')">
+                <div class="card text-center h-100">
                     <div class="card-body">
+                        <i class="bi bi-plus-circle fs-1 text-success mb-3"></i>
                         <h5 class="card-title">Add Books</h5>
                         <p class="card-text">Add new books to your collection quickly.</p>
-                        <a href="/books/add" class="btn btn-outline-success">Add Book</a>
+                        <a href="/books/add" class="btn btn-success"><i class="bi bi-plus"></i> Add Book</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-center">
+            <div class="col-md-3 mb-4">
+                <div class="card text-center h-100">
                     <div class="card-body">
+                        <i class="bi bi-gear fs-1 text-info mb-3"></i>
                         <h5 class="card-title">Manage</h5>
                         <p class="card-text">Edit, delete, and view detailed information.</p>
-                        <a href="/books" class="btn btn-outline-info">Manage</a>
+                        <a href="/books" class="btn btn-info"><i class="bi bi-pencil"></i> Manage</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card text-center h-100" style="border: 2px solid #ffd700;">
+                    <div class="card-body">
+                        <i class="bi bi-code-square fs-1 mb-3" style="color: #ffd700;"></i>
+                        <h5 class="card-title">REST API</h5>
+                        <p class="card-text">Access book data via RESTful endpoints.</p>
+                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#apiModal">
+                            <i class="bi bi-lightning"></i> View API
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Documentation Modal -->
+        <div class="modal fade" id="apiModal" tabindex="-1" aria-labelledby="apiModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content" style="background-color: #16213e; color: #e8e8e8;">
+                    <div class="modal-header" style="background-color: #0f3460; border-bottom: 1px solid #2d4059;">
+                        <h5 class="modal-title" id="apiModalLabel">
+                            <i class="bi bi-code-square"></i> REST API Documentation
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> <strong>Base URL:</strong> <code>http://localhost:8080/api/v1</code>
+                        </div>
+                        
+                        <h6 class="mt-4 mb-3" style="color: #ffd700;">📚 Available Endpoints:</h6>
+                        
+                        <div class="mb-3">
+                            <h6 class="text-warning">Books API:</h6>
+                        </div>
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /books</h6>
+                            <p class="ms-3 mb-2">Get list of all books with pagination</p>
+                            <p class="ms-3"><small>Params: pageNumber, pageSize, sortBy</small></p>
+                        </div>
+                        
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /books/id/{'{id}'}</h6>
+                            <p class="ms-3 mb-2">Get book details by ID</p>
+                        </div>
+                        
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /books/search</h6>
+                            <p class="ms-3 mb-2">Search books by keyword</p>
+                            <p class="ms-3"><small>Param: keyword</small></p>
+                        </div>
+                        
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-primary">POST</span> /books</h6>
+                            <p class="ms-3 mb-2">Create a new book</p>
+                            <p class="ms-3"><small>Body: {'{title, author, price, categoryId}'}</small></p>
+                        </div>
+                        
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-warning text-dark">PUT</span> /books/{'{id}'}</h6>
+                            <p class="ms-3 mb-2">Update an existing book</p>
+                            <p class="ms-3"><small>Body: {'{title, author, price, categoryId}'}</small></p>
+                        </div>
+                        
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-danger">DELETE</span> /books/{'{id}'}</h6>
+                            <p class="ms-3 mb-2">Delete a book by ID</p>
+                        </div>
+                        
+                        <hr style="border-color: #2d4059;">
+                        
+                        <div class="mb-3">
+                            <h6 class="text-warning">Categories API:</h6>
+                        </div>
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /categories</h6>
+                            <p class="ms-3 mb-2">Get all categories</p>
+                        </div>
+                        
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /categories/{'{id}'}</h6>
+                            <p class="ms-3 mb-2">Get category details by ID</p>
+                        </div>
+                        
+                        <hr style="border-color: #2d4059;">
+                        
+                        <div class="mb-3">
+                            <h6 class="text-warning">Cart API:</h6>
+                        </div>
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /cart</h6>
+                            <p class="ms-3 mb-2">Get current shopping cart</p>
+                        </div>
+                        
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /cart/summary</h6>
+                            <p class="ms-3 mb-2">Get cart summary (totalQuantity, totalPrice)</p>
+                        </div>
+                        
+                        <hr style="border-color: #2d4059;">
+                        
+                        <div class="mb-3">
+                            <h6 class="text-warning">Orders API:</h6>
+                        </div>
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /orders</h6>
+                            <p class="ms-3 mb-2">Get all orders (Admin)</p>
+                        </div>
+                        
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /orders/{'{id}'}</h6>
+                            <p class="ms-3 mb-2">Get order details by ID</p>
+                        </div>
+                        
+                        <div class="mb-4 ms-3">
+                            <h6><span class="badge bg-success">GET</span> /orders/stats</h6>
+                            <p class="ms-3 mb-2">Get order statistics (Admin)</p>
+                            <p class="ms-3"><small>Returns: totalOrders, totalRevenue, uniqueCustomers, totalProducts</small></p>
+                        </div>
+                        
+                        <hr style="border-color: #2d4059;">
+                        
+                        <h6 class="mt-4 mb-3" style="color: #ffd700;">🔐 Authentication:</h6>
+                        <p>API requires authentication. Endpoints are accessible to <code>ADMIN</code> and <code>USER</code> roles.</p>
+                        
+                        <h6 class="mt-4 mb-3" style="color: #ffd700;">💡 Features in HTML Templates:</h6>
+                        <ul>
+                            <li><strong>Book List:</strong> AJAX delete with smooth animations</li>
+                            <li><strong>Book Details:</strong> AJAX delete with redirect</li>
+                            <li><strong>Add/Edit Forms:</strong> API preview button to see request format</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid #2d4059;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div style="flex-grow: 1;"></div>
     <th:block th:replace="~{layout::footer}"></th:block>
 </body>
 </html>

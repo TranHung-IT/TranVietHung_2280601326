@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử đơn hàng</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: #e8e8e8;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2d4059;
+        }
+        .page-header h1 {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 2.5rem;
+        }
+        .page-header p {
+            color: #e8e8e8;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .order-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .order-card:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-state i {
+            font-size: 80px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="page-header">
+        <div class="container">
+            <h1 class="mb-2 page-title">
+                <i class="bi bi-clock-history"></i> Lịch sử đơn hàng
+            </h1>
+            <p class="mb-0">Quản lý và theo dõi các đơn hàng của bạn</p>
+        </div>
+    </div>
+    
+    <div class="container mb-5">
+        <!-- Empty State -->
+        <div th:if="${invoices == null or invoices.isEmpty()}" class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h3>Chưa có đơn hàng nào</h3>
+            <p class="text-muted">Bạn chưa có đơn hàng nào. Hãy bắt đầu mua sắm!</p>
+            <a th:href="@{/books}" class="btn btn-primary btn-lg mt-3">
+                <i class="bi bi-shop"></i> Mua sắm ngay
+            </a>
+        </div>
+        
+        <!-- Orders List -->
+        <div th:if="${invoices != null and !invoices.isEmpty()}">
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h5>Tổng số đơn hàng: <strong th:text="${invoices.size()}">0</strong></h5>
+                </div>
+            </div>
+            
+            <div th:each="invoice : ${invoices}" class="order-card">
+                <div class="mb-3 border-bottom pb-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-1">
+                                <i class="bi bi-receipt"></i> 
+                                Đơn hàng #<span th:text="${invoice.id}">001</span>
+                            </h5>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3"></i> 
+                                <span th:text="${#dates.format(invoice.invoiceDate, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <h5 class="text-danger mb-0" th:text="${#numbers.formatDecimal(invoice.total, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h5>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-2">
+                            <strong><i class="bi bi-person"></i> Người nhận:</strong> 
+                            <span th:text="${invoice.customerName}">Nguyễn Văn A</span>
+                        </div>
+                        <div class="mb-2">
+                            <strong><i class="bi bi-telephone"></i> SĐT:</strong> 
+                            <span th:text="${invoice.customerPhone}">0123456789</span>
+                        </div>
+                        <div class="mb-2">
+                            <strong><i class="bi bi-geo-alt"></i> Địa chỉ:</strong> 
+                            <span th:text="${invoice.customerAddress}">123 ABC, Q.1, TP.HCM</span>
+                        </div>
+                        <div class="mb-2">
+                            <strong><i class="bi bi-credit-card"></i> Thanh toán:</strong> 
+                            <span th:if="${invoice.paymentMethod == 'COD'}">
+                                <i class="bi bi-cash-coin text-success"></i> COD
+                            </span>
+                            <span th:if="${invoice.paymentMethod == 'BANK_TRANSFER'}">
+                                <i class="bi bi-bank text-primary"></i> Chuyển khoản
+                            </span>
+                            <span th:if="${invoice.paymentMethod == 'E_WALLET'}">
+                                <i class="bi bi-wallet2 text-warning"></i> Ví điện tử
+                            </span>
+                            <span th:if="${invoice.paymentMethod == 'CREDIT_CARD'}">
+                                <i class="bi bi-credit-card-2-front text-danger"></i> Thẻ
+                            </span>
+                        </div>
+                        <div>
+                            <strong><i class="bi bi-box-seam"></i> Sản phẩm:</strong> 
+                            <span th:text="${invoice.itemInvoices.size()} + ' sản phẩm'">3 sản phẩm</span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 text-end d-flex flex-column justify-content-end">
+                        <a th:href="@{/cart/order/{id}(id=${invoice.id})}" class="btn btn-primary">
+                            <i class="bi bi-eye"></i> Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <th:block th:replace="~{layout::footer}"></th:block>
+</body>
+</html>

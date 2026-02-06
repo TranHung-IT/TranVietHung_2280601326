@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán - Checkout</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    <style>
+        .checkout-container {
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+        .book-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .book-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .book-image {
+            width: 80px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .payment-method {
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .payment-method:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .payment-method.active {
+            border-color: #007bff;
+            background-color: #e7f3ff;
+        }
+        .summary-card {
+            position: sticky;
+            top: 20px;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="container checkout-container">
+        <h2 class="mb-4"><i class="bi bi-bag-check"></i> Thanh toán đơn hàng</h2>
+        
+        <form th:action="@{/cart/process-checkout}" method="post" id="checkoutForm">
+            <div class="row">
+                <!-- Bên trái: Thông tin sách -->
+                <div class="col-md-7">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-cart3"></i> Thông tin đơn hàng</h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:each="item, iterStat : ${cart.cartItems}" class="book-item">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <img src="https://via.placeholder.com/80x120?text=Book" 
+                                             class="book-image" 
+                                             alt="Book image">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="mb-1" th:text="${item.bookName}">Book Title</h6>
+                                        <p class="text-muted mb-0">
+                                            <small>Giá: <span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span></small>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <p class="mb-0">SL: <strong th:text="${item.quantity}">1</strong></p>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <p class="mb-0 text-danger fw-bold" th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'">100,000 đ</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bên phải: Form thông tin người mua & phương thức thanh toán -->
+                <div class="col-md-5">
+                    <!-- Thông tin người nhận -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="bi bi-person-fill"></i> Thông tin người nhận</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="customerName" name="customerName" 
+                                       th:value="${user != null ? user.username : ''}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerPhone" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="customerPhone" name="customerPhone" 
+                                       th:value="${user != null ? user.phone : ''}" required pattern="[0-9]{10,11}">
+                                <small class="text-muted">Nhập 10-11 số</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerEmail" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="customerEmail" name="customerEmail" 
+                                       th:value="${user != null ? user.email : ''}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerAddress" class="form-label">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="customerAddress" name="customerAddress" 
+                                          rows="3" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phương thức thanh toán -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="bi bi-credit-card"></i> Phương thức thanh toán</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="payment-method" onclick="selectPayment('COD')">
+                                <input type="radio" name="paymentMethod" value="COD" id="cod" checked>
+                                <label for="cod" class="ms-2">
+                                    <i class="bi bi-cash-coin text-success"></i>
+                                    <strong>Thanh toán khi nhận hàng (COD)</strong>
+                                    <p class="mb-0 text-muted small">Thanh toán bằng tiền mặt khi nhận hàng</p>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-method" onclick="selectPayment('BANK_TRANSFER')">
+                                <input type="radio" name="paymentMethod" value="BANK_TRANSFER" id="bank">
+                                <label for="bank" class="ms-2">
+                                    <i class="bi bi-bank text-primary"></i>
+                                    <strong>Chuyển khoản ngân hàng</strong>
+                                    <p class="mb-0 text-muted small">Chuyển khoản qua tài khoản ngân hàng</p>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-method" onclick="selectPayment('E_WALLET')">
+                                <input type="radio" name="paymentMethod" value="E_WALLET" id="wallet">
+                                <label for="wallet" class="ms-2">
+                                    <i class="bi bi-wallet2 text-warning"></i>
+                                    <strong>Ví điện tử</strong>
+                                    <p class="mb-0 text-muted small">Thanh toán qua Momo, ZaloPay, VNPay...</p>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-method" onclick="selectPayment('CREDIT_CARD')">
+                                <input type="radio" name="paymentMethod" value="CREDIT_CARD" id="card">
+                                <label for="card" class="ms-2">
+                                    <i class="bi bi-credit-card-2-front text-danger"></i>
+                                    <strong>Thẻ tín dụng/Ghi nợ</strong>
+                                    <p class="mb-0 text-muted small">Thanh toán bằng thẻ Visa, Mastercard...</p>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tổng kết đơn hàng -->
+                    <div class="card shadow-sm summary-card">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="bi bi-receipt"></i> Tổng kết đơn hàng</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tổng số lượng:</span>
+                                <strong th:text="${totalQuantity} + ' sản phẩm'">0 sản phẩm</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tạm tính:</span>
+                                <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Phí vận chuyển:</span>
+                                <span class="text-success">Miễn phí</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <h5>Tổng cộng:</h5>
+                                <h5 class="text-danger" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h5>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 btn-lg">
+                                <i class="bi bi-check-circle"></i> Xác nhận thanh toán
+                            </button>
+                            <a th:href="@{/cart}" class="btn btn-outline-secondary w-100 mt-2">
+                                <i class="bi bi-arrow-left"></i> Quay lại giỏ hàng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <th:block th:replace="~{layout::footer}"></th:block>
+    
+    <script>
+        function selectPayment(method) {
+            // Remove active class from all payment methods
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Add active class to selected payment method
+            const radio = document.querySelector('input[value="' + method + '"]');
+            radio.checked = true;
+            radio.closest('.payment-method').classList.add('active');
+        }
+        
+        // Set initial active state
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkedRadio = document.querySelector('input[name="paymentMethod"]:checked');
+            if (checkedRadio) {
+                checkedRadio.closest('.payment-method').classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

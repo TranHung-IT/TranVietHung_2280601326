@@ -49,6 +49,25 @@ public class Invoice {
     @Positive(message = "Total must be positive")
     private Double total;
     
+    @Column(name = "customer_name")
+    private String customerName;
+    
+    @Column(name = "customer_phone")
+    private String customerPhone;
+    
+    @Column(name = "customer_address")
+    private String customerAddress;
+    
+    @Column(name = "customer_email")
+    private String customerEmail;
+    
+    @Column(name = "payment_method")
+    private String paymentMethod;
+    
+    @Column(name = "status")
+    @Default
+    private String status = "PENDING"; // PENDING, PROCESSING, COMPLETED, CANCELLED
+    
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
     @ToString.Exclude
     @Default

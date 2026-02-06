@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <Resources cachingAllowed="true" cacheMaxSize="100000" />
+    <!-- Increase max parameter count for file uploads -->
+    <Valve className="org.apache.catalina.valves.StuckThreadDetectionValve" threshold="60" />
+</Context>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports & Statistics</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    <th:block th:replace="~{layout::admin-sidebar-css}"></th:block>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="admin-layout">
+        <th:block th:replace="~{layout::admin-sidebar}"></th:block>
+        
+        <div class="admin-content">
+            <div class="container-fluid p-4">
+        <h2 class="mb-4"><i class="bi bi-bar-chart"></i> Dashboard - Reports & Statistics</h2>
+        
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card shadow">
+                    <div class="card-body text-center">
+                        <i class="bi bi-book" style="font-size: 3rem; color: #9D44C0;"></i>
+                        <h3 class="mt-2" th:text="${totalBooks}">0</h3>
+                        <p class="text-muted">Total Books</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people" style="font-size: 3rem; color: #7E60BF;"></i>
+                        <h3 class="mt-2" th:text="${totalUsers}">0</h3>
+                        <p class="text-muted">Total Users</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow">
+                    <div class="card-body text-center">
+                        <i class="bi bi-cart" style="font-size: 3rem; color: #10b981;"></i>
+                        <h3 class="mt-2" th:text="${totalOrders}">0</h3>
+                        <p class="text-muted">Total Orders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow">
+                    <div class="card-body text-center">
+                        <i class="bi bi-cash" style="font-size: 3rem; color: #ef4444;"></i>
+                        <h3 class="mt-2" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')}">0</h3>
+                        <p class="text-muted">Total Revenue (đ)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Today's Stats -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5><i class="bi bi-calendar-day"></i> Today's Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Orders Today: <strong th:text="${todayOrders}">0</strong></p>
+                        <p>Revenue Today: <strong th:text="${#numbers.formatDecimal(todayRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5><i class="bi bi-tag"></i> Total Categories</h5>
+                    </div>
+                    <div class="card-body">
+                        <h3 th:text="${totalCategories}">0</h3>
+                        <p class="text-muted">Book Categories</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Selling Books -->
+        <div class="card shadow mb-4" th:if="${topBooks != null && !#lists.isEmpty(topBooks)}">
+            <div class="card-header">
+                <h5><i class="bi bi-trophy"></i> Top 5 Best Selling Books</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Price</th>
+                                <th>Sold</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="book, iterStat : ${topBooks}">
+                                <td th:text="${iterStat.count}">1</td>
+                                <td th:text="${book[0].title}">Book Title</td>
+                                <td th:text="${book[0].author}">Author</td>
+                                <td th:text="${#numbers.formatDecimal(book[0].price, 0, 'COMMA', 0, 'POINT')} + ' đ'">Price</td>
+                                <td th:text="${book[1]}">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mb-4" th:if="${topBooks == null || #lists.isEmpty(topBooks)}">
+            <i class="bi bi-info-circle"></i> No sales data available yet. Top selling books will appear here once you have order data.
+        </div>
+        
+        <!-- Quick Links -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5><i class="bi bi-link"></i> Quick Links</h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="/admin/reports/sales" class="btn btn-primary me-2">
+                            <i class="bi bi-graph-up"></i> Sales Report
+                        </a>
+                        <a href="/admin/reports/books" class="btn btn-success me-2">
+                            <i class="bi bi-book"></i> Books Report
+                        </a>
+                        <a href="/admin/reports/users" class="btn btn-info">
+                            <i class="bi bi-people"></i> Users Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+    
+    <th:block th:replace="~{layout::footer}"></th:block>
+</body>
+</html>

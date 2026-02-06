@@ -31,7 +31,7 @@ public class SecurityConfig {
     
     @Bean
     public UserDetailsService userDetailsService() {
-        return new UserService();
+        return userService;  // Trả về instance đã được Spring inject
     }
     
     @Bean
@@ -41,14 +41,18 @@ public class SecurityConfig {
     
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        var auth = new DaoAuthenticationProvider(userDetailsService());
+        DaoAuthenticationProvider auth = new DaoAuthenticationProvider(userDetailsService());
         auth.setPasswordEncoder(passwordEncoder());
         return auth;
     }
     
     @Bean
     public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests(auth -> auth
+        return http
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**") // Disable CSRF for REST API
+            )
+            .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/css/**", 
                     "/js/**", 
@@ -60,15 +64,20 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/books/edit/**", 
                     "/books/delete/**",
-                    "/books/add"
-                ).authenticated()
+                    "/books/add",
+                    "/admin/**"
+                ).hasAuthority("ADMIN")
                 .requestMatchers(
                     "/books", 
                     "/cart",
+                    "/cart/checkout",
+                    "/cart/process-checkout"
+                ).permitAll()
+                .requestMatchers(
                     "/cart/**"
-                ).authenticated()
+                ).hasAuthority("USER")
                 .requestMatchers("/api/**")
-                .authenticated()
+                .hasAnyAuthority("ADMIN", "USER")
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
@@ -114,7 +123,7 @@ public class SecurityConfig {
                 .key("TranVietHung_2280601326")
                 .rememberMeCookieName("TranVietHung_2280601326")
                 .tokenValiditySeconds(24 * 60 * 60)
-                .userDetailsService(userDetailsService())
+                .userDetailsService(userDetailsService())  // Dùng bean method
             )
             .exceptionHandling(exceptionHandling -> exceptionHandling
                 .accessDeniedPage("/403")

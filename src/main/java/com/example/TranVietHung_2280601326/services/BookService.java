@@ -1,6 +1,8 @@
 package com.example.TranVietHung_2280601326.services;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -28,24 +30,26 @@ public class BookService {
     }
 
     // Them sach moi
-    public void addBook(Book book) {
-        bookRepository.save(book);
+    public Book addBook(Book book) {
+        return bookRepository.save(book);
     }
 
     // Xoa sach theo ID
     public void deleteBookById(Long id) {
+        Book book = bookRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+        
+        // Kiểm tra nếu sách đã có trong hóa đơn
+        if (book.getItemInvoices() != null && !book.getItemInvoices().isEmpty()) {
+            throw new RuntimeException("Cannot delete book that has been ordered. Book ID: " + id);
+        }
+        
         bookRepository.deleteById(id);
     }
 
     // Sua thong tin sach
-    public void updateBook(@NonNull Book book) {
-        Book existingBook = bookRepository.findById(book.getId())
-            .orElseThrow(() -> new IllegalArgumentException("Book not found with id: " + book.getId()));
-        existingBook.setTitle(book.getTitle());
-        existingBook.setAuthor(book.getAuthor());
-        existingBook.setPrice(book.getPrice());
-        existingBook.setCategory(book.getCategory());
-        bookRepository.save(existingBook);
+    public Book updateBook(@NonNull Book book) {
+        return bookRepository.save(book);
     }
 
     // Hien thi chi tiet sach theo ID
@@ -56,5 +60,52 @@ public class BookService {
     // Tim kiem sach theo tu khoa
     public List<Book> searchBooks(String keyword) {
         return bookRepository.searchBooks(keyword);
+    }
+    
+    // Admin reports methods
+    public long countAllBooks() {
+        return bookRepository.count();
+    }
+    
+    public List<Object[]> getTopSellingBooks(int limit) {
+        // Return empty list since we don't have sales tracking yet
+        // In the future, join with invoice items to get actual sales data
+        return List.of();
+    }
+    
+    public Map<String, Long> countBooksByCategory() {
+        List<Book> allBooks = bookRepository.findAll();
+        Map<String, Long> categoryCount = new HashMap<>();
+        
+        for (Book book : allBooks) {
+            if (book.getCategory() != null) {
+                String categoryName = book.getCategory().getName();
+                categoryCount.put(categoryName, categoryCount.getOrDefault(categoryName, 0L) + 1);
+            } else {
+                categoryCount.put("Uncategorized", categoryCount.getOrDefault("Uncategorized", 0L) + 1);
+            }
+        }
+        
+        return categoryCount;
+    }
+    
+    public List<Book> getTopExpensiveBooks(int limit) {
+        return bookRepository.findAll().stream()
+            .sorted((b1, b2) -> Double.compare(b2.getPrice(), b1.getPrice()))
+            .limit(limit)
+            .collect(Collectors.toList());
+    }
+    
+    public List<Book> getTopCheapBooks(int limit) {
+        return bookRepository.findAll().stream()
+            .sorted((b1, b2) -> Double.compare(b1.getPrice(), b2.getPrice()))
+            .limit(limit)
+            .collect(Collectors.toList());
+    }
+    
+    public long countBooksWithoutImages() {
+        return bookRepository.findAll().stream()
+            .filter(book -> book.getImages() == null || book.getImages().isEmpty())
+            .count();
     }
 }

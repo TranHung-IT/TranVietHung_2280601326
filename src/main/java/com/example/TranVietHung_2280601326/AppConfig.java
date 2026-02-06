@@ -3,14 +3,31 @@ package com.example.TranVietHung_2280601326;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.example.TranVietHung_2280601326.models.Book;
 import com.example.TranVietHung_2280601326.models.Category;
 
 @Configuration
-public class AppConfig {
+public class AppConfig implements WebMvcConfigurer {
+    
+    @Value("${file.upload-dir:uploads}")
+    private String uploadDir;
+    
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Cấu hình để serve static files từ thư mục uploads
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("file:" + uploadDir + "/images/");
+        
+        registry.addResourceHandler("/videos/**")
+                .addResourceLocations("file:" + uploadDir + "/videos/");
+    }
+    
     @Bean 
     public List<Category> getCategories() {
         Category category1 = Category.builder()

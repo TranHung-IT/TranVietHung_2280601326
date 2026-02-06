@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details - Admin</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    <th:block th:replace="~{layout::admin-sidebar-css}"></th:block>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="admin-layout">
+        <th:block th:replace="~{layout::admin-sidebar}"></th:block>
+        
+        <div class="admin-content">
+            <div class="container-fluid p-4">
+        <h2>User Details</h2>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>ID:</strong></div>
+                    <div class="col-md-9" th:text="${user.id}">1</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>Username:</strong></div>
+                    <div class="col-md-9" th:text="${user.username}">username</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>Email:</strong></div>
+                    <div class="col-md-9" th:text="${user.email}">email@example.com</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>Roles:</strong></div>
+                    <div class="col-md-9">
+                        <span th:each="role, iterStat : ${user.roles}" 
+                              th:text="${role.name} + ${!iterStat.last ? ', ' : ''}">ROLE</span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>Provider:</strong></div>
+                    <div class="col-md-9" th:text="${user.provider}">LOCAL</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-primary">Edit</a>
+            <a href="/admin/users" class="btn btn-secondary">Back to List</a>
+        </div>
+            </div>
+        </div>
+    </div>
+    
+    <th:block th:replace="~{layout::footer}"></th:block>
+</body>
+</html>

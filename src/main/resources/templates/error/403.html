@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Access Denied</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="card shadow-lg text-center">
+                    <div class="card-body p-5">
+                        <i class="bi bi-shield-exclamation fs-1 text-danger mb-3" style="font-size: 5rem;"></i>
+                        <h1 class="display-1 fw-bold">403</h1>
+                        <p class="fs-3 mb-3">
+                            <span class="text-danger">Opps!</span> Access Denied.
+                        </p>
+                        <p class="lead text-muted mb-4">
+                            You don't have permission to access this page.
+                        </p>
+                        <a href="/" class="btn btn-primary btn-lg">
+                            <i class="bi bi-house"></i> Back to homepage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="flex-grow: 1;"></div>
+    <th:block th:replace="~{layout::footer}"></th:block>
+</body>
+</html>

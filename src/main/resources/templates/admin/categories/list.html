@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Management</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    <th:block th:replace="~{layout::admin-sidebar-css}"></th:block>
+</head>
+<body>
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="admin-layout">
+        <th:block th:replace="~{layout::admin-sidebar}"></th:block>
+        
+        <div class="admin-content">
+            <div class="container-fluid p-4">
+                <!-- Thông báo -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div class="card shadow-lg">
+                    <div class="card-header py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h2 class="mb-0"><i class="bi bi-tags-fill"></i> Category Management</h2>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <a href="/admin/categories/add" class="btn btn-success">
+                                    <i class="bi bi-plus-circle"></i> Add New Category
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;"><i class="bi bi-hash"></i> ID</th>
+                                        <th><i class="bi bi-tag-fill"></i> Category Name</th>
+                                        <th style="width: 150px;"><i class="bi bi-book"></i> Books Count</th>
+                                        <th style="width: 200px;"><i class="bi bi-gear"></i> Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="category : ${categories}">
+                                        <td style="vertical-align: middle;" th:text="${category.id}"></td>
+                                        <td style="vertical-align: middle;">
+                                            <strong th:text="${category.name}"></strong>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <span class="badge bg-primary" th:text="${category.books != null ? category.books.size() : 0} + ' books'"></span>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <a class="btn btn-primary btn-sm" th:href="@{/admin/categories/edit/{id}(id=${category.id})}">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </a>
+                                            <button class="btn btn-danger btn-sm delete-category-btn" 
+                                                    th:attr="data-category-id=${category.id}, data-category-name=${category.name}">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(categories)}">
+                                        <td colspan="4" class="text-center py-4">
+                                            <i class="bi bi-inbox" style="font-size: 3rem; color: #999;"></i>
+                                            <p class="text-muted mt-2">No categories found. Add your first category!</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Total: <strong th:text="${categories.size()}"></strong> categories</span>
+                            <a href="/admin/reports" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <th:block th:replace="~{layout::footer}"></th:block>
+    
+    <script>
+    // AJAX Delete Category using REST API
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-category-btn');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const categoryId = this.getAttribute('data-category-id');
+                const categoryName = this.getAttribute('data-category-name');
+                
+                if (confirm(`Are you sure you want to delete category "${categoryName}"?\n\nNote: This will affect all books in this category!`)) {
+                    // Show loading state
+                    this.disabled = true;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Deleting...';
+                    
+                    // Call delete endpoint (traditional way)
+                    window.location.href = `/admin/categories/delete/${categoryId}`;
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

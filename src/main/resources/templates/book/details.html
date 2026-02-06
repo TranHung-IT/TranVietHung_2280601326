@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,29 +10,209 @@
     <th:block th:replace="~{layout::link-css}"></th:block>
     <th:block th:replace="~{layout::custom-css}"></th:block>
 </head>
-<body>
+<body class="d-flex flex-column" style="min-height: 100vh;">
     <th:block th:replace="~{layout::header}"></th:block>
 
-    <div class="container mt-5">
-        <h2>Book Details</h2>
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title" th:text="${book.title}">Book Title</h5>
-                <p class="card-text">
-                    <strong>ID:</strong> <span th:text="${book.id}"></span><br>
-                    <strong>Author:</strong> <span th:text="${book.author}"></span><br>
-                    <strong>Price:</strong> $<span th:text="${book.price}"></span><br>
-                    <strong>Category:</strong> <span th:text="${book.category.name}"></span>
-                </p>
-                <a th:href="@{/books/edit/{id}(id=${book.id})}" class="btn btn-primary">Edit</a>
-                <a th:href="@{/books/delete/{id}(id=${book.id})}" 
-                   class="btn btn-danger"
-                   onclick="return confirm('Are you sure you want to delete this book?')">Delete</a>
-                <a href="/books" class="btn btn-secondary">Back to List</a>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card shadow-lg">
+                    <div class="card-header text-center py-3">
+                        <h2 class="mb-0"><i class="bi bi-info-circle"></i> Book Details</h2>
+                    </div>
+                    <div class="card-body p-5">
+                        <h3 class="card-title text-center mb-4" th:text="${book.title}">Book Title</h3>
+                        
+                        <!-- Layout: Video bên trái, Ảnh bên phải -->
+                        <div class="row mb-4">
+                            <!-- Video bên trái (75%) -->
+                            <div class="col-lg-9 mb-3 mb-lg-0">
+                                <div th:if="${book.video != null}">
+                                    <h5 class="mb-3"><i class="bi bi-play-circle"></i> Video giới thiệu:</h5>
+                                    <div class="ratio ratio-16x9" style="border: 2px solid #dee2e6; border-radius: 8px;" id="videoContainer">
+                                        <video controls style="border-radius: 8px;">
+                                            <source th:src="@{${book.video.videoUrl}}" type="video/mp4">
+                                            Trình duyệt không hỗ trợ video.
+                                        </video>
+                                    </div>
+                                </div>
+                                <!-- Hiển thị placeholder nếu không có video -->
+                                <div th:unless="${book.video != null}" class="text-center p-5" style="border: 2px solid #dee2e6; border-radius: 8px; background-color: rgba(0,0,0,0.05);" id="videoContainer">
+                                    <i class="bi bi-camera-video fs-1 text-muted" style="font-size: 4rem;"></i>
+                                    <p class="text-muted mt-3">Không có video</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Ảnh bên phải (25%) - scroll nếu > 3 ảnh -->
+                            <div class="col-lg-3">
+                                <h5 class="mb-3" style="visibility: hidden;"><i class="bi bi-play-circle"></i> &nbsp;</h5>
+                                <div th:if="${book.images != null && !book.images.isEmpty()}">
+                                    <div id="imageListContainer" class="d-flex flex-column gap-2" style="overflow-y: auto; padding-right: 5px;">
+                                        <div th:each="image, iterStat : ${book.images}" 
+                                             class="border rounded overflow-hidden image-thumbnail" 
+                                             style="height: 150px; cursor: pointer; flex-shrink: 0;"
+                                             data-bs-toggle="modal" 
+                                             data-bs-target="#imageModal"
+                                             th:attr="data-image-url=${image.imageUrl}">
+                                            <img th:src="@{${image.imageUrl}}" 
+                                                 class="w-100 h-100" 
+                                                 alt="Book image" 
+                                                 style="object-fit: cover; transition: transform 0.3s;"
+                                                 onmouseover="this.style.transform='scale(1.05)'"
+                                                 onmouseout="this.style.transform='scale(1)'">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Icon mặc định nếu không có ảnh -->
+                                <div th:unless="${book.images != null && !book.images.isEmpty()}" class="text-center p-4" style="border: 2px solid #dee2e6; border-radius: 8px;">
+                                    <i class="bi bi-image fs-1 text-muted" style="font-size: 3rem;"></i>
+                                    <p class="text-muted mt-2">Không có ảnh</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Modal để xem ảnh phóng to -->
+                        <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Xem ảnh</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img id="modalImage" src="" class="img-fluid" alt="Book image">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <p class="card-text">
+                                    <i class="bi bi-hash text-primary"></i> <strong>ID:</strong> 
+                                    <span class="badge bg-secondary" th:text="${book.id}"></span>
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="card-text">
+                                    <i class="bi bi-person text-primary"></i> <strong>Author:</strong> 
+                                    <span th:text="${book.author}"></span>
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="card-text">
+                                    <i class="bi bi-cash text-primary"></i> <strong>Price:</strong> 
+                                    <span class="text-success fw-bold" th:text="${book.price} + ' VND'"></span>
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="card-text">
+                                    <i class="bi bi-tag text-primary"></i> <strong>Category:</strong> 
+                                    <span class="badge bg-info" th:text="${book.category.name}"></span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a th:href="@{/books/edit/{id}(id=${book.id})}" class="btn btn-primary btn-lg" sec:authorize="hasAuthority('ADMIN')">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <button id="deleteBookBtn" class="btn btn-danger btn-lg" th:attr="data-book-id=${book.id}, data-book-title=${book.title}" sec:authorize="hasAuthority('ADMIN')">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                            <a href="/books" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <div style="flex-grow: 1;"></div>
     <th:block th:replace="~{layout::footer}"></th:block>
+    
+    <script>
+        // Xử lý click vào thumbnail để hiển thị ảnh trong modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageThumbnails = document.querySelectorAll('.image-thumbnail');
+            const modalImage = document.getElementById('modalImage');
+            
+            imageThumbnails.forEach(function(thumbnail) {
+                thumbnail.addEventListener('click', function() {
+                    const imageUrl = this.getAttribute('data-image-url');
+                    if (modalImage && imageUrl) {
+                        modalImage.src = imageUrl;
+                    }
+                });
+            });
+            
+            // Đồng bộ chiều cao của list ảnh với video container
+            function syncImageListHeight() {
+                const videoContainer = document.getElementById('videoContainer');
+                const imageListContainer = document.getElementById('imageListContainer');
+                
+                if (videoContainer && imageListContainer) {
+                    const videoHeight = videoContainer.offsetHeight;
+                    imageListContainer.style.height = videoHeight + 'px';
+                }
+            }
+            
+            // Gọi ngay khi trang load
+            syncImageListHeight();
+            
+            // Gọi lại khi resize window
+            window.addEventListener('resize', syncImageListHeight);
+            
+            // Gọi lại sau khi video load để đảm bảo đúng
+            setTimeout(syncImageListHeight, 100);
+            
+            // AJAX Delete Book using REST API
+            const deleteBtn = document.getElementById('deleteBookBtn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const bookId = this.getAttribute('data-book-id');
+                    const bookTitle = this.getAttribute('data-book-title');
+                    
+                    if (confirm(`Are you sure you want to delete "${bookTitle}"?`)) {
+                        // Show loading state
+                        this.disabled = true;
+                        this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Deleting...';
+                        
+                        // Call REST API
+                        fetch(`/api/v1/books/${bookId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                return response.text();
+                            } else {
+                                throw new Error('Failed to delete book');
+                            }
+                        })
+                        .then(data => {
+                            // Redirect to list with success message
+                            window.location.href = '/books?deleted=true';
+                        })
+                        .catch(error => {
+                            // Show error message
+                            alert('Error: ' + error.message);
+                            
+                            // Re-enable button
+                            this.disabled = false;
+                            this.innerHTML = '<i class="bi bi-trash"></i> Delete';
+                        });
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

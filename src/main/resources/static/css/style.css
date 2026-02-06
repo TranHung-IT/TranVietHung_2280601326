@@ -1,13 +1,448 @@
-nav{
+/* Animated Gradient Background */
+body {
+    background: linear-gradient(-45deg, #1a1d2e, #252943, #2d1b3d, #1e2235);
+    background-size: 400% 400%;
+    animation: gradientShift 5s ease infinite;
+    min-height: 100vh;
+    color: #e0e0e0;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Card Effects with Glass Morphism */
+.card {
+    background: rgba(30, 34, 53, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #e0e0e0;
+    overflow: visible !important;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px 0 rgba(157, 68, 192, 0.2);
+}
+
+/* Card Header with Gradient */
+.card-header {
+    background: linear-gradient(135deg, #3d2a54 0%, #4a3563 100%) !important;
+    color: white !important;
+    border-bottom: none !important;
+    border: 1px solid rgba(157, 68, 192, 0.3);
+    overflow: visible !important;
+    position: relative !important;
+}
+
+.card-header h1, .card-header h2, .card-header h3, .card-header h4, .card-header h5 {
+    color: white !important;
+    background: none !important;
+    -webkit-text-fill-color: white !important;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Card Footer Styling */
+.card-footer {
+    background: rgba(20, 24, 40, 0.9);
+    backdrop-filter: blur(5px);
+    border-top: 1px solid rgba(157, 68, 192, 0.2);
+    color: #e0e0e0;
+}
+
+/* Dropdown Menu Styling - Fix z-index and visibility */
+.dropdown-menu {
+    background: rgba(30, 34, 53, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(157, 68, 192, 0.3) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
+    z-index: 1050 !important;
+}
+
+.dropdown-item {
+    color: #e0e0e0 !important;
+}
+
+.dropdown-item:hover {
+    background: rgba(157, 68, 192, 0.3) !important;
+    color: white !important;
+}
+
+.btn-group {
+    position: relative;
+    z-index: 1000;
+}
+
+
+/* Navbar with Glass Effect */
+.navbar {
+    background: rgba(26, 29, 46, 0.95) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-brand, .nav-link {
+    color: #e0e0e0 !important;
+}
+
+.nav-link:hover {
+    color: #9D44C0 !important;
+}
+
+.navbar-text {
+    color: #e0e0e0 !important;
+}
+
+/* Button Gradient Animation */
+.btn-primary, .btn-success, .btn-info {
+    background: linear-gradient(135deg, #9D44C0 0%, #7E60BF 100%);
+    border: none;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.btn-primary:hover, .btn-success:hover, .btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(157, 68, 192, 0.4);
+    color: white;
+}
+
+.btn-primary::before, .btn-success::before, .btn-info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before, .btn-success:hover::before, .btn-info:hover::before {
+    left: 100%;
+}
+
+/* Table Styling */
+.table {
+    background: rgba(30, 34, 53, 0.7) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    overflow: hidden;
+    color: #e0e0e0 !important;
+}
+
+.table thead {
+    background: linear-gradient(135deg, #3d2a54 0%, #4a3563 100%) !important;
+    color: white !important;
+}
+
+.table thead tr {
+    background: linear-gradient(135deg, #3d2a54 0%, #4a3563 100%) !important;
+}
+
+.table thead th {
+    background: transparent !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.table tbody {
+    background: rgba(30, 34, 53, 0.85) !important;
+}
+
+.table tbody tr {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(30, 34, 53, 0.85) !important;
+}
+
+.table tbody tr:hover {
+    background: rgba(157, 68, 192, 0.2) !important;
+}
+
+.table td {
+    color: #e0e0e0 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: transparent !important;
+}
+
+.table th {
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.table-hover tbody tr:hover td {
+    background-color: transparent !important;
+    color: #ffffff !important;
+}
+
+/* Animated Cards on Page Load */
+.card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Alert Box Gradient */
+.alert-info {
+    background: linear-gradient(135deg, #9D44C0 0%, #7E60BF 100%);
+    color: white;
+    border: none;
+}
+
+/* Footer */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer {
+    background: rgba(26, 29, 46, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5);
+    margin-top: auto;
+    color: #e0e0e0;
+}
+
+.footer a {
+    color: #9D44C0;
+}
+
+.footer a:hover {
+    color: #7E60BF;
+}
+
+/* Pagination */
+nav {
     text-align: center;
 }
 
-.pagination{
+.pagination {
     display: inline-block;
 }
 
-.footer{
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #9D44C0 0%, #7E60BF 100%);
+    border: none;
+    color: white;
+}
+
+.page-link {
+    background: rgba(30, 34, 53, 0.8);
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.page-link:hover {
+    background: rgba(157, 68, 192, 0.2);
+    color: #9D44C0;
+}
+
+/* Floating Animation for Icons */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.bi {
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Input Focus Effect */
+.form-control {
+    background: rgba(30, 34, 53, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.form-control:focus {
+    background: rgba(30, 34, 53, 0.9);
+    border-color: #9D44C0;
+    box-shadow: 0 0 15px rgba(157, 68, 192, 0.4);
+    color: #e0e0e0;
+}
+
+.form-control::placeholder {
+    color: #888;
+}
+
+.input-group-text {
+    background: rgba(30, 34, 53, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+/* Smooth Transitions */
+* {
+    transition: all 0.3s ease;
+}
+
+/* Container Background */
+.container {
+    background: transparent;
+}
+
+/* Jumbotron Style */
+.jumbotron {
+    background: rgba(30, 34, 53, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    animation: fadeInUp 0.8s ease-out;
+    color: #e0e0e0;
+}
+
+.jumbotron h1 {
+    background: linear-gradient(135deg, #9D44C0 0%, #7E60BF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+}
+
+.jumbotron .lead {
+    color: #b0b0b0;
+}
+
+/* Card Title Gradient */
+.card-title {
+    color: #9D44C0;
+    font-weight: 600;
+}
+
+.card-text {
+    color: #b0b0b0;
+}
+
+/* Text Gradient for Headings (not in card-header) */
+.container > h1:not(.card-header h1), 
+.container > h2:not(.card-header h2), 
+.container > h3:not(.card-header h3),
+.jumbotron h1,
+.card-body h1,
+.card-body h2,
+.card-body h3 {
+    background: linear-gradient(135deg, #9D44C0 0%, #7E60BF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+}
+
+/* Success Checkmark Animation */
+@keyframes checkmark {
+    0% {
+        transform: scale(0) rotate(0deg);
+    }
+    50% {
+        transform: scale(1.2) rotate(180deg);
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+    }
+}
+
+.bi-check-circle-fill {
+    animation: checkmark 0.8s ease-out;
+}
+
+/* Badge Styling for Dark Theme */
+.badge.bg-primary {
+    background: linear-gradient(135deg, #9D44C0 0%, #7E60BF 100%) !important;
+}
+
+.badge.bg-secondary {
+    background: rgba(108, 117, 125, 0.8) !important;
+}
+
+.badge.bg-info {
+    background: linear-gradient(135deg, #9D44C0 0%, #7E60BF 100%) !important;
+}
+
+/* Text Colors for Dark Theme */
+.text-success {
+    color: #10b981 !important;
+}
+
+.text-danger {
+    color: #ef4444 !important;
+}
+
+.text-primary {
+    color: #9D44C0 !important;
+}
+
+.text-muted {
+    color: #9ca3af !important;
+}
+
+/* Button Outline for Dark Theme */
+.btn-outline-secondary {
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(108, 117, 125, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+}
+
+/* Table links styling */
+.table thead th a {
+    color: white !important;
+    text-decoration: none;
+}
+
+.table thead th a:hover {
+    color: #e0e0e0 !important;
+}
+
+/* Table responsive wrapper */
+.table-responsive {
+    background: transparent !important;
+}
+
+/* Form select styling */
+select.form-control {
+    background: rgba(30, 34, 53, 0.8);
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+select.form-control option {
+    background: #1e2235;
+    color: #e0e0e0;
 }

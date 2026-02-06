@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý đơn hàng</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    <th:block th:replace="~{layout::admin-sidebar-css}"></th:block>
+    <style>
+        body {
+            background-color: #1a1a2e;
+        }
+        .admin-content {
+            background-color: #1a1a2e;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: #e8e8e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #2d4059;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .stats-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        .stats-card h2 {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .order-table {
+            background: #16213e;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border: 1px solid #2d4059;
+        }
+        .table {
+            color: #e8e8e8;
+            margin-bottom: 0;
+        }
+        .table-dark {
+            background-color: #0f3460;
+            color: #e8e8e8;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #1f2b3f;
+            color: #e8e8e8;
+        }
+        .card {
+            background: #16213e;
+            border: 1px solid #2d4059;
+            color: #e8e8e8;
+        }
+        .form-control, .form-select {
+            background-color: #0f3460;
+            border-color: #2d4059;
+            color: #e8e8e8;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #16213e;
+            border-color: #e94560;
+            color: #e8e8e8;
+        }
+        .form-label {
+            color: #e8e8e8;
+        }
+        h2 {
+            color: #e8e8e8;
+        }
+        .btn-primary {
+            background-color: #e94560;
+            border-color: #e94560;
+        }
+        .btn-primary:hover {
+            background-color: #c73649;
+            border-color: #c73649;
+        }
+        .btn-secondary {
+            background-color: #533483;
+            border-color: #533483;
+        }
+        .btn-secondary:hover {
+            background-color: #3d2561;
+            border-color: #3d2561;
+        }
+        .admin-layout {
+            display: flex;
+            flex: 1;
+            min-height: calc(100vh - 120px);
+        }
+        .admin-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="admin-layout">
+        <th:block th:replace="~{layout::admin-sidebar}"></th:block>
+        
+        <div class="admin-content">
+            <div class="container-fluid p-4">
+                <h2 class="mb-4"><i class="bi bi-receipt-cutoff"></i> Quản lý đơn hàng</h2>
+                
+                <!-- Success/Error Messages -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h4><i class="bi bi-receipt"></i> Tổng đơn hàng</h4>
+                            <h2 th:text="${invoices.size()}">0</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <h4><i class="bi bi-cash-stack"></i> Tổng doanh thu</h4>
+                            <h2 th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <h4><i class="bi bi-people"></i> Số khách hàng</h4>
+                            <h2 th:text="${uniqueCustomers}">0</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <h4><i class="bi bi-box-seam"></i> Sản phẩm đã bán</h4>
+                            <h2 th:text="${totalProducts}">0</h2>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filter & Search -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="get" action="/admin/orders">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Tìm kiếm</label>
+                                    <input type="text" class="form-control" name="search" 
+                                           th:value="${searchParam}"
+                                           placeholder="Tên, SĐT khách hàng...">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Phương thức TT</label>
+                                    <select class="form-select" name="payment">
+                                        <option value="">Tất cả</option>
+                                        <option value="COD" th:selected="${paymentParam == 'COD'}">COD</option>
+                                        <option value="BANK_TRANSFER" th:selected="${paymentParam == 'BANK_TRANSFER'}">Chuyển khoản</option>
+                                        <option value="E_WALLET" th:selected="${paymentParam == 'E_WALLET'}">Ví điện tử</option>
+                                        <option value="CREDIT_CARD" th:selected="${paymentParam == 'CREDIT_CARD'}">Thẻ</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Từ ngày</label>
+                                    <input type="date" class="form-control" name="fromDate" th:value="${fromDateParam}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Đến ngày</label>
+                                    <input type="date" class="form-control" name="toDate" th:value="${toDateParam}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-search"></i> Tìm kiếm
+                                        </button>
+                                        <a href="/admin/orders" class="btn btn-secondary">
+                                            <i class="bi bi-arrow-clockwise"></i> Reset
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Orders Table -->
+                <div class="order-table">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Mã ĐH</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Khách hàng</th>
+                                    <th>SĐT</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Thanh toán</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${invoices == null or invoices.isEmpty()}">
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                                        <p class="text-muted mt-3">Chưa có đơn hàng nào</p>
+                                    </td>
+                                </tr>
+                                <tr th:each="invoice : ${invoices}">
+                                    <td><strong>#<span th:text="${invoice.id}">1</span></strong></td>
+                                    <td th:text="${#dates.format(invoice.invoiceDate, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                    <td th:text="${invoice.customerName}">Nguyễn Văn A</td>
+                                    <td th:text="${invoice.customerPhone}">0123456789</td>
+                                    <td class="text-danger fw-bold" th:text="${#numbers.formatDecimal(invoice.total, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
+                                    <td>
+                                        <span th:if="${invoice.paymentMethod == 'COD'}">
+                                            <i class="bi bi-cash-coin text-success"></i> COD
+                                        </span>
+                                        <span th:if="${invoice.paymentMethod == 'BANK_TRANSFER'}">
+                                            <i class="bi bi-bank text-primary"></i> Chuyển khoản
+                                        </span>
+                                        <span th:if="${invoice.paymentMethod == 'E_WALLET'}">
+                                            <i class="bi bi-wallet2 text-warning"></i> Ví điện tử
+                                        </span>
+                                        <span th:if="${invoice.paymentMethod == 'CREDIT_CARD'}">
+                                            <i class="bi bi-credit-card-2-front text-danger"></i> Thẻ
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/admin/orders/{id}(id=${invoice.id})}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye"></i> Chi tiết
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <th:block th:replace="~{layout::footer}"></th:block>
+</body>
+</html>

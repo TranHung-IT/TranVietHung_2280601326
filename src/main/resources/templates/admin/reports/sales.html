@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report - Admin</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    <th:block th:replace="~{layout::admin-sidebar-css}"></th:block>
+    <style>
+        .stat-card {
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card.orders {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .stat-card.revenue {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .stat-card h5 {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .stat-card h2 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+    <th:block th:replace="~{layout::header}"></th:block>
+    
+    <div class="admin-layout">
+        <th:block th:replace="~{layout::admin-sidebar}"></th:block>
+        
+        <div class="admin-content">
+            <div class="container-fluid p-4">
+        <h2>Sales Report</h2>
+        
+        <!-- Date Range Filter -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" action="/admin/reports/sales" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" 
+                               th:value="${startDate}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate" 
+                               th:value="${endDate}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary d-block">Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="stat-card orders">
+                    <h5><i class="bi bi-cart-check"></i> Total Orders</h5>
+                    <h2 th:text="${totalOrders}">0</h2>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="stat-card revenue">
+                    <h5><i class="bi bi-cash-coin"></i> Total Revenue</h5>
+                    <h2 th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</h2>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sales Data Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Sales Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info" th:if="${salesData != null}">
+                    <p><strong>Period:</strong> <span th:text="${startDate}"></span> to <span th:text="${endDate}"></span></p>
+                    <p><strong>Orders:</strong> <span th:text="${salesData.totalOrders}"></span></p>
+                    <p><strong>Revenue:</strong> <span th:text="${#numbers.formatDecimal(salesData.totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span></p>
+                </div>
+                <div class="alert alert-warning" th:unless="${salesData != null}">
+                    No sales data available for the selected period.
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <a href="/admin/reports" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+    </div>
+    </div>
+    
+    <th:block th:replace="~{layout::footer}"></th:block>
+</body>
+</html>
