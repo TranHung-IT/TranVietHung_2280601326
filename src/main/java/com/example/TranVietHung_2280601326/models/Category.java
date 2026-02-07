@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import org.hibernate.Hibernate;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,7 +36,7 @@ public class Category {
     @Column(name="name", length=255, nullable = false, columnDefinition = "NVARCHAR(255)")
     private String name;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category")
     @ToString.Exclude
     @Builder.Default
     private List<Book> books = new ArrayList<>();

@@ -1,5 +1,8 @@
 package com.example.TranVietHung_2280601326.controllers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.TranVietHung_2280601326.models.Book;
 import com.example.TranVietHung_2280601326.models.User;
 import com.example.TranVietHung_2280601326.services.CartService;
 
@@ -24,7 +28,29 @@ public class CartController {
     
     @GetMapping
     public String showCart(HttpSession session, @NotNull Model model) {
-        model.addAttribute("cart", cartService.getCart(session));
+        var cart = cartService.getCart(session);
+        
+        // Tạo map để check stock cho từng item
+        Map<Long, Integer> stockMap = new HashMap<>();
+        boolean hasStockIssues = false;
+        
+        for (var item : cart.getCartItems()) {
+            Book book = cartService.getBookById(item.getBookId());
+            if (book != null && book.getQuantity() != null) {
+                stockMap.put(item.getBookId(), book.getQuantity());
+                // Check if has stock issues
+                if (book.getQuantity() == 0 || book.getQuantity() < item.getQuantity()) {
+                    hasStockIssues = true;
+                }
+            } else {
+                stockMap.put(item.getBookId(), 0);
+                hasStockIssues = true;
+            }
+        }
+        
+        model.addAttribute("cart", cart);
+        model.addAttribute("stockMap", stockMap);
+        model.addAttribute("hasStockIssues", hasStockIssues);
         model.addAttribute("totalPrice", cartService.getSumPrice(session));
         model.addAttribute("totalQuantity", cartService.getSumQuantity(session));
         return "book/cart";
@@ -52,7 +78,7 @@ public class CartController {
     
     // Checkout - Hien thi trang thanh toan
     @GetMapping("/checkout")
-    public String checkout(HttpSession session, Model model) {
+    public String checkout(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         var cart = cartService.getCart(session);
         
         // Kiem tra gio hang co trong khong
@@ -96,6 +122,29 @@ public class CartController {
         // Kiem tra gio hang co trong khong
         if (cart.getCartItems().isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Giỏ hàng trống!");
+            return "redirect:/cart";
+        }
+        
+        // Kiểm tra stock quantity cho từng item trong cart
+        StringBuilder outOfStockMessage = new StringBuilder();
+        boolean hasOutOfStock = false;
+        
+        for (var item : cart.getCartItems()) {
+            Book book = cartService.getBookById(item.getBookId());
+            if (book == null) {
+                outOfStockMessage.append("Book '" + item.getBookName() + "' not found. ");
+                hasOutOfStock = true;
+            } else if (book.getQuantity() == null || book.getQuantity() <= 0) {
+                outOfStockMessage.append("'" + item.getBookName() + "' is out of stock. ");
+                hasOutOfStock = true;
+            } else if (book.getQuantity() < item.getQuantity()) {
+                outOfStockMessage.append("'" + item.getBookName() + "' only has " + book.getQuantity() + " items available (you have " + item.getQuantity() + " in cart). ");
+                hasOutOfStock = true;
+            }
+        }
+        
+        if (hasOutOfStock) {
+            redirectAttributes.addFlashAttribute("error", "Cannot checkout: " + outOfStockMessage.toString() + "Please update your cart.");
             return "redirect:/cart";
         }
         

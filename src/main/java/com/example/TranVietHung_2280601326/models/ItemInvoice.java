@@ -38,8 +38,15 @@ public class ItemInvoice {
     @Positive(message = "Quantity must be positive")
     private int quantity;
     
+    // Lưu snapshot thông tin sản phẩm tại thời điểm đặt hàng
+    @Column(name = "book_name", nullable = true, length = 500)
+    private String bookName;
+    
+    @Column(name = "book_price", nullable = true)
+    private Double bookPrice;
+    
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id", referencedColumnName = "id")
+    @JoinColumn(name = "book_id", referencedColumnName = "id", nullable = true)
     @ToString.Exclude
     private Book book;
     

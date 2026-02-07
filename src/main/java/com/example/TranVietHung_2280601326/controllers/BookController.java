@@ -271,10 +271,35 @@ public class BookController {
                            @RequestParam long id, 
                            @RequestParam String name, 
                            @RequestParam double price, 
-                           @RequestParam(defaultValue = "1") int quantity) {
+                           @RequestParam(defaultValue = "1") int quantity,
+                           RedirectAttributes redirectAttributes) {
+        // Kiểm tra stock quantity
+        Book book = bookService.getBookById(id);
+        if (book == null) {
+            redirectAttributes.addFlashAttribute("error", "Book not found!");
+            return "redirect:/books";
+        }
+        
+        if (book.getQuantity() == null || book.getQuantity() <= 0) {
+            redirectAttributes.addFlashAttribute("error", "Sorry, \"" + name + "\" is out of stock!");
+            return "redirect:/books";
+        }
+        
+        // Kiểm tra số lượng trong giỏ hàng + số lượng muốn thêm
         var cart = cartService.getCart(session);
+        int currentQuantityInCart = cart.getCartItems().stream()
+            .filter(item -> item.getBookId() == id)
+            .mapToInt(Item::getQuantity)
+            .sum();
+        
+        if (currentQuantityInCart + quantity > book.getQuantity()) {
+            redirectAttributes.addFlashAttribute("error", "Cannot add more. Only " + book.getQuantity() + " items available (" + currentQuantityInCart + " already in cart)");
+            return "redirect:/books";
+        }
+        
         cart.addItems(new Item(id, name, price, quantity));
         cartService.updateCart(session, cart);
+        redirectAttributes.addFlashAttribute("success", "Added to cart successfully!");
         return "redirect:/books";
     }
     

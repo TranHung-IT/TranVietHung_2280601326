@@ -52,6 +52,12 @@
             </div>
             
             <div class="mb-3">
+                <label for="quantity" class="form-label"><i class="bi bi-box-seam"></i> Quantity (Stock):</label>
+                <input type="number" class="form-control" id="quantity" th:field="*{quantity}" min="0" value="1">
+                <small class="form-text text-muted">Enter the stock quantity. Default is 1.</small>
+            </div>
+            
+            <div class="mb-3">
                 <label for="imageFiles" class="form-label"><i class="bi bi-images"></i> Ảnh sản phẩm (Tối đa 5 ảnh):</label>
                 <input type="file" class="form-control" id="imageFiles" name="imageFiles" multiple accept="image/*" onchange="checkFileCount(this, 5)">
                 <small class="form-text text-muted">Chọn tối đa 5 ảnh cùng lúc. Định dạng: JPG, PNG, GIF, WEBP</small>

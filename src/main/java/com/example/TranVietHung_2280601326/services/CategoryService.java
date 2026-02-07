@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.TranVietHung_2280601326.models.Book;
 import com.example.TranVietHung_2280601326.models.Category;
+import com.example.TranVietHung_2280601326.repositories.IBookRepository;
 import com.example.TranVietHung_2280601326.repositories.ICategoryRepository;
 
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = {Exception.class, Throwable.class})
 public class CategoryService {
     private final ICategoryRepository categoryRepository;
+    private final IBookRepository bookRepository;
 
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
@@ -39,6 +42,16 @@ public class CategoryService {
         categoryRepository.save(existingCategory); }
 
     public void deleteCategoryById(Long id) {
+        // Tìm tất cả books thuộc category này
+        List<Book> booksInCategory = bookRepository.findByCategoryId(id);
+        
+        // Set category = null cho tất cả books
+        for (Book book : booksInCategory) {
+            book.setCategory(null);
+            bookRepository.save(book);
+        }
+        
+        // Sau đó mới xóa category
         categoryRepository.deleteById(id);
     }
 

@@ -187,26 +187,24 @@
                                 </div>
                             </div>
                             <div class="col-md-5">
-                                <h6 class="mb-1" th:text="${item.book != null ? item.book.title : 'Sản phẩm'}">Book Title</h6>
+                                <h6 class="mb-1" th:text="${item.bookName != null ? item.bookName : (item.book != null ? item.book.title : 'Sản phẩm')}">Book Title</h6>
                                 <p class="text-muted mb-0">
                                     <small th:if="${item.book != null}">Tác giả: <span th:text="${item.book.author}">Author</span></small>
-                                    <small th:if="${item.book == null}">Thông tin không khả dụng</small>
+                                    <small th:if="${item.book == null}" class="text-warning">⚠️ Sản phẩm đã ngừng kinh doanh</small>
                                 </p>
                             </div>
                             <div class="col-md-2 text-center">
-                                <p class="mb-0" th:if="${item?.book?.price != null}">
-                                    <span th:text="${#numbers.formatDecimal(item.book.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span><br>
-                                    <small class="text-muted">x <span th:text="${item?.quantity} ?: 1"></span></small>
-                                </p>
-                                <p class="mb-0" th:unless="${item?.book?.price != null}">
-                                    <small class="text-muted">Số lượng: <span th:text="${item?.quantity} ?: 1"></span></small>
+                                <p class="mb-0">
+                                    <span th:text="${item.bookPrice != null ? (#numbers.formatDecimal(item.bookPrice, 0, 'COMMA', 0, 'POINT') + ' đ') : (item.book != null ? (#numbers.formatDecimal(item.book.price, 0, 'COMMA', 0, 'POINT') + ' đ') : 'N/A')}"></span><br>
+                                    <small class="text-muted">x <span th:text="${item.quantity}"></span></small>
                                 </p>
                             </div>
                             <div class="col-md-2 text-end">
-                                <h6 class="text-danger mb-0" th:if="${item?.book?.price != null}">
-                                    <span th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                <h6 class="text-danger mb-0">
+                                    <span th:if="${item.bookPrice != null}" th:text="${#numbers.formatDecimal(item.bookPrice * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                    <span th:if="${item.bookPrice == null && item.book != null}" th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                    <span th:if="${item.bookPrice == null && item.book == null}">N/A</span>
                                 </h6>
-                                <h6 class="text-danger mb-0" th:unless="${item?.book?.price != null}">N/A</h6>
                             </div>
                         </div>
                     </div>

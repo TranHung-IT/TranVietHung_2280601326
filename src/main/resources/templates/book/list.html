@@ -91,8 +91,28 @@
             font-size: 1.25rem;
             font-weight: bold;
             color: #5FD068;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .book-quantity {
+            font-size: 0.95rem;
+            color: #E8E8E8;
+            margin-bottom: 15px;
+            padding: 6px 12px;
+            background: rgba(138, 95, 191, 0.2);
+            border-radius: 8px;
+            border: 1px solid #8A5FBF;
+            text-align: center;
+        }
+        
+        .book-quantity .stock-badge {
+            font-weight: 600;
+            color: #5FD068;
+        }
+        
+        .book-quantity .out-of-stock {
+            color: #E94560;
         }
         
         .book-actions {
@@ -270,7 +290,7 @@
                                    class="bi bi-book no-image-icon"></i>
                             </div>
                             
-                            <div class="book-category" th:text="${book.getCategory().getName()}"></div>
+                            <div class="book-category" th:text="${book.getCategory() != null ? book.getCategory().getName() : 'Undefined'}"></div>
                             
                             <h5 class="book-title" th:text="${book.getTitle()}" th:title="${book.getTitle()}"></h5>
                             
@@ -280,6 +300,15 @@
                             
                             <div class="book-price">
                                 <i class="bi bi-currency-dollar"></i><span th:text="${book.getPrice()}"></span>
+                            </div>
+                            
+                            <div class="book-quantity">
+                                <i class="bi bi-box-seam"></i> <strong>Stock:</strong> 
+                                <span th:if="${book.getQuantity() != null && book.getQuantity() > 0}" 
+                                      class="stock-badge" 
+                                      th:text="${book.getQuantity()} + ' available'"></span>
+                                <span th:if="${book.getQuantity() == null || book.getQuantity() == 0}" 
+                                      class="out-of-stock">Out of stock</span>
                             </div>
                             
                             <div class="book-actions">
@@ -298,8 +327,14 @@
                                     <input type="hidden" name="id" th:value="${book.getId()}">
                                     <input type="hidden" name="name" th:value="${book.getTitle()}">
                                     <input type="hidden" name="price" th:value="${book.getPrice()}">
-                                    <button type="submit" class="btn btn-success btn-sm w-100" onclick="return confirm('Are you sure you want to add this book to cart?')">
-                                        <i class="bi bi-cart-plus"></i> Add to cart
+                                    <button type="submit" 
+                                            class="btn btn-success btn-sm w-100" 
+                                            th:disabled="${book.getQuantity() == null || book.getQuantity() == 0}"
+                                            th:classappend="${book.getQuantity() == null || book.getQuantity() == 0} ? 'disabled' : ''"
+                                            onclick="return confirm('Are you sure you want to add this book to cart?')">
+                                        <i class="bi bi-cart-plus"></i> 
+                                        <span th:if="${book.getQuantity() != null && book.getQuantity() > 0}">Add to cart</span>
+                                        <span th:if="${book.getQuantity() == null || book.getQuantity() == 0}">Out of stock</span>
                                     </button>
                                 </form>
                             </div>

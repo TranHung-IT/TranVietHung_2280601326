@@ -16,4 +16,13 @@ public interface IBookRepository extends JpaRepository<Book, Long> {
            "LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Book> searchBooks(@Param("keyword") String keyword);
+    
+    @Query("SELECT COUNT(ii) FROM ItemInvoice ii WHERE ii.book.id = :bookId")
+    long countItemInvoicesByBookId(@Param("bookId") Long bookId);
+    
+    @Query("SELECT b FROM Book b WHERE b.category.id = :categoryId")
+    List<Book> findByCategoryId(@Param("categoryId") Long categoryId);
+    
+    @Query("SELECT b FROM Book b WHERE LOWER(b.title) = LOWER(:title)")
+    Book findByTitleIgnoreCase(@Param("title") String title);
 }

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.TranVietHung_2280601326.daos.Cart;
 import com.example.TranVietHung_2280601326.daos.Item;
+import com.example.TranVietHung_2280601326.models.Book;
 import com.example.TranVietHung_2280601326.models.Invoice;
 import com.example.TranVietHung_2280601326.models.ItemInvoice;
 import com.example.TranVietHung_2280601326.models.User;
@@ -74,7 +75,19 @@ public class CartService {
             var items = new ItemInvoice();
             items.setInvoice(invoice);
             items.setQuantity(item.getQuantity());
-            items.setBook(bookRepository.findById(item.getBookId()).orElseThrow());
+            
+            // Lưu snapshot thông tin sản phẩm tại thời điểm đặt hàng
+            Book book = bookRepository.findById(item.getBookId()).orElseThrow();
+            items.setBook(book);
+            items.setBookName(book.getTitle());
+            items.setBookPrice(book.getPrice());
+            
+            // Trừ số lượng sách sau khi đặt hàng
+            int currentQuantity = book.getQuantity() != null ? book.getQuantity() : 0;
+            int newQuantity = Math.max(0, currentQuantity - item.getQuantity());
+            book.setQuantity(newQuantity);
+            bookRepository.save(book);
+            
             itemInvoiceRepository.save(items);
             invoice.getItemInvoices().add(items); // Thêm vào collection để hiển thị
         });
@@ -128,10 +141,22 @@ public class CartService {
             var itemInvoice = new ItemInvoice();
             itemInvoice.setInvoice(invoice);
             itemInvoice.setQuantity(item.getQuantity());
-            itemInvoice.setBook(bookRepository.findById(item.getBookId()).orElseThrow());
+            
+            // Lưu snapshot thông tin sản phẩm tại thời điểm đặt hàng
+            Book book = bookRepository.findById(item.getBookId()).orElseThrow();
+            itemInvoice.setBook(book);
+            itemInvoice.setBookName(book.getTitle());
+            itemInvoice.setBookPrice(book.getPrice());
+            
+            // Trừ số lượng sách sau khi đặt hàng
+            int currentQuantity = book.getQuantity() != null ? book.getQuantity() : 0;
+            int newQuantity = Math.max(0, currentQuantity - item.getQuantity());
+            book.setQuantity(newQuantity);
+            bookRepository.save(book);
+            
             itemInvoiceRepository.save(itemInvoice);
             savedCount++;
-            System.out.println("=== DEBUG: Saved ItemInvoice #" + savedCount + " for BookID: " + item.getBookId() + " ===");
+            System.out.println("=== DEBUG: Saved ItemInvoice #" + savedCount + " for BookID: " + item.getBookId() + ", Updated quantity from " + currentQuantity + " to " + newQuantity + " ===");
         }
         
         System.out.println("=== DEBUG: Total ItemInvoices saved: " + savedCount + " ===");
@@ -170,5 +195,10 @@ public class CartService {
         var invoice = invoiceRepository.findById(id).orElseThrow();
         invoice.setStatus(status);
         invoiceRepository.save(invoice);
+    }
+    
+    // Get book by ID for stock checking
+    public com.example.TranVietHung_2280601326.models.Book getBookById(Long id) {
+        return bookRepository.findById(id).orElse(null);
     }
 }

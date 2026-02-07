@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.TranVietHung_2280601326.models.Book;
 import com.example.TranVietHung_2280601326.repositories.IBookRepository;
+import com.example.TranVietHung_2280601326.repositories.IItemInvoiceRepository;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = {Exception.class, Throwable.class})
 public class BookService {
     private final IBookRepository bookRepository;
+    private final IItemInvoiceRepository itemInvoiceRepository;
 
     public List<Book> getAllBooks(Integer pageNumber,
                                 Integer pageSize,
@@ -31,19 +33,34 @@ public class BookService {
 
     // Them sach moi
     public Book addBook(Book book) {
-        return bookRepository.save(book);
+        // Kiểm tra xem đã có sách với tên này chưa
+        Book existingBook = bookRepository.findByTitleIgnoreCase(book.getTitle());
+        
+        if (existingBook != null) {
+            // Nếu đã có sách trùng tên, cộng dồn số lượng
+            int currentQuantity = existingBook.getQuantity() != null ? existingBook.getQuantity() : 0;
+            int addQuantity = book.getQuantity() != null ? book.getQuantity() : 1;
+            existingBook.setQuantity(currentQuantity + addQuantity);
+            
+            // Cập nhật thông tin khác nếu cần (giữ nguyên hoặc update)
+            // Ở đây tôi sẽ giữ nguyên thông tin cũ, chỉ cộng quantity
+            return bookRepository.save(existingBook);
+        } else {
+            // Nếu chưa có, đảm bảo quantity có giá trị
+            if (book.getQuantity() == null || book.getQuantity() == 0) {
+                book.setQuantity(1);
+            }
+            return bookRepository.save(book);
+        }
     }
 
     // Xoa sach theo ID
     public void deleteBookById(Long id) {
-        Book book = bookRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+        // Set book_id = null trong ItemInvoice để giữ lại lịch sử đơn hàng
+        // Snapshot bookName và bookPrice đã được lưu khi tạo order
+        itemInvoiceRepository.setBookToNullByBookId(id);
         
-        // Kiểm tra nếu sách đã có trong hóa đơn
-        if (book.getItemInvoices() != null && !book.getItemInvoices().isEmpty()) {
-            throw new RuntimeException("Cannot delete book that has been ordered. Book ID: " + id);
-        }
-        
+        // Xóa book - lúc này không còn reference từ ItemInvoice
         bookRepository.deleteById(id);
     }
 

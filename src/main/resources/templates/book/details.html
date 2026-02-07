@@ -108,7 +108,17 @@
                             <div class="col-md-6 mb-3">
                                 <p class="card-text">
                                     <i class="bi bi-tag text-primary"></i> <strong>Category:</strong> 
-                                    <span class="badge bg-info" th:text="${book.category.name}"></span>
+                                    <span class="badge bg-info" th:text="${book.category != null ? book.category.name : 'Undefined'}"></span>
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="card-text">
+                                    <i class="bi bi-box-seam text-primary"></i> <strong>Stock:</strong> 
+                                    <span th:if="${book.quantity != null && book.quantity > 0}" 
+                                          class="badge bg-success" 
+                                          th:text="${book.quantity} + ' available'"></span>
+                                    <span th:if="${book.quantity == null || book.quantity == 0}" 
+                                          class="badge bg-danger">Out of stock</span>
                                 </p>
                             </div>
                         </div>

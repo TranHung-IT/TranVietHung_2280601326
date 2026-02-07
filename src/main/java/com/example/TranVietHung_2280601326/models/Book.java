@@ -59,13 +59,16 @@ public class Book {
     @Column(name="price", nullable = false)
     private Double price;
     
-    @NotNull(message = "Invalid Category ID")
+    @Column(name="quantity", nullable = false, columnDefinition = "INT DEFAULT 0")
+    @Default
+    private Integer quantity = 0;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     @ToString.Exclude
     private Category category;
     
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonIgnore
     @Default

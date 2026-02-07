@@ -49,6 +49,12 @@
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
                             </div>
                             
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label"><i class="bi bi-box-seam"></i> Quantity (Stock):</label>
+                                <input type="number" class="form-control" id="quantity" th:field="*{quantity}" min="0">
+                                <small class="form-text text-muted">Update the stock quantity.</small>
+                            </div>
+                            
                             <!-- Hiển thị ảnh hiện tại -->
                             <div class="mb-3" th:if="${book.images != null && !book.images.isEmpty()}">
                                 <label class="form-label"><i class="bi bi-images"></i> Ảnh hiện tại:</label>

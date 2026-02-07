@@ -13,6 +13,14 @@
     
     <!-- Cart with items -->
     <div class="container my-5" th:if="${not #lists.isEmpty(cart.cartItems)}">
+        <!-- Alert for out of stock items -->
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${hasStockIssues}">
+            <i class="bi bi-exclamation-triangle-fill"></i> 
+            <strong>Warning!</strong> Some items in your cart are out of stock or have insufficient quantity. 
+            Please remove them or update quantities before checkout.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
         <div class="card shadow-lg">
             <div class="card-header py-3">
                 <h2 class="mb-0"><i class="bi bi-cart"></i> Shopping Cart</h2>
@@ -37,20 +45,31 @@
                     <td>
                         <i class="bi bi-book" style="font-size: 2rem; color: #9D44C0;"></i>
                     </td>
-                    <td th:text="${item.getBookId()}"></td>
-                    <td th:text="${item.getBookName()}"></td>
+                    <td th:text="${item.bookId}"></td>
+                    <td>
+                        <span th:text="${item.bookName}"></span>
+                        <!-- Warning if out of stock -->
+                        <span th:if="${stockMap[item.bookId] != null && stockMap[item.bookId] == 0}" class="badge bg-danger ms-2">
+                            <i class="bi bi-exclamation-triangle"></i> OUT OF STOCK
+                        </span>
+                        <!-- Warning if not enough stock -->
+                        <span th:if="${stockMap[item.bookId] != null && stockMap[item.bookId] > 0 && stockMap[item.bookId] < item.quantity}" 
+                              class="badge bg-warning text-dark ms-2">
+                            <i class="bi bi-exclamation-circle"></i> Only <span th:text="${stockMap[item.bookId]}"></span> left
+                        </span>
+                    </td>
                     <td>
                         <label>
-                            <input type="number" min="1" th:value="${item.getQuantity()}" 
-                                   th:attr="data-id=${item.getBookId()}" 
+                            <input type="number" min="1" th:value="${item.quantity}" 
+                                   th:attr="data-id=${item.bookId}" 
                                    class="form-control quantity" style="width: 80px;">
                         </label>
                     </td>
-                    <td th:text="${item.getPrice()}"></td>
-                    <td th:text="${item.getPrice() * item.getQuantity()}"></td>
+                    <td th:text="${item.price}"></td>
+                    <td th:text="${item.price * item.quantity}"></td>
                     <td>
                         <a class="btn btn-danger btn-sm" 
-                           th:href="@{/cart/removeFromCart/{id}(id=${item.getBookId()})}"
+                           th:href="@{/cart/removeFromCart/{id}(id=${item.bookId})}"
                            onclick="return confirm('Are you sure you want to remove this item?')">
                             <i class="bi bi-trash"></i> Remove
                         </a>
@@ -70,7 +89,12 @@
                         </h3>
                     </div>
                     <div class="col-md-6 text-end">
-                        <a class="btn btn-success btn-lg me-2" th:href="@{/cart/checkout}">
+                        <!-- Disable checkout if any item is out of stock or insufficient quantity -->
+                        <a class="btn btn-success btn-lg me-2" 
+                           th:href="@{/cart/checkout}"
+                           th:classappend="${hasStockIssues} ? 'disabled' : ''"
+                           th:attr="aria-disabled=${hasStockIssues} ? 'true' : 'false'"
+                           th:onclick="${hasStockIssues} ? 'event.preventDefault(); alert(\'Please remove out of stock items or update quantities before checkout.\'); return false;' : ''">
                             <i class="bi bi-check-circle"></i> Checkout
                         </a>
                         <a class="btn btn-danger btn-lg" th:href="@{/cart/clearCart}"

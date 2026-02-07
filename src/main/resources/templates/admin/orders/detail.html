@@ -174,11 +174,25 @@
                             <tbody>
                                 <tr th:each="item, iterStat : ${invoice.itemInvoices}">
                                     <td th:text="${iterStat.index + 1}">1</td>
-                                    <td th:text="${item.book.title}">Book Title</td>
-                                    <td th:text="${item.book.author}">Author</td>
+                                    <td>
+                                        <span th:text="${item.bookName != null ? item.bookName : (item.book != null ? item.book.title : 'Sản phẩm')}">Book Title</span>
+                                        <span th:if="${item.book == null}" class="badge bg-warning text-dark ms-2">Đã ngừng KD</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${item.book != null}" th:text="${item.book.author}">Author</span>
+                                        <span th:if="${item.book == null}" class="text-muted">N/A</span>
+                                    </td>
                                     <td th:text="${item.quantity}">1</td>
-                                    <td th:text="${#numbers.formatDecimal(item.book.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
-                                    <td class="text-danger fw-bold" th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
+                                    <td>
+                                        <span th:if="${item.bookPrice != null}" th:text="${#numbers.formatDecimal(item.bookPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                        <span th:if="${item.bookPrice == null && item.book != null}" th:text="${#numbers.formatDecimal(item.book.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                        <span th:if="${item.bookPrice == null && item.book == null}">N/A</span>
+                                    </td>
+                                    <td class="text-danger fw-bold">
+                                        <span th:if="${item.bookPrice != null}" th:text="${#numbers.formatDecimal(item.bookPrice * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                        <span th:if="${item.bookPrice == null && item.book != null}" th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                        <span th:if="${item.bookPrice == null && item.book == null}">N/A</span>
+                                    </td>
                                 </tr>
                             </tbody>
                             <tfoot>
