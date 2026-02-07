@@ -10,42 +10,180 @@
     <th:block th:replace="~{layout::link-css}"></th:block>
     <th:block th:replace="~{layout::custom-css}"></th:block>
     <style>
-        /* Thu nhỏ card body */
-        .card {
-            max-width: 90%;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .card-body {
-            max-width: 88%;
-            margin-left: auto;
-            margin-right: auto;
+        /* Dark Theme Color Palette from ColorHunt */
+        .book-card {
+            border: 2px solid #4A5C6A;
+            border-radius: 12px;
+            padding: 20px;
+            height: 100%;
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #253342, #2C3E50);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
         
-        /* Thu nhỏ các cột trong table */
-        .table thead th:nth-child(1) { width: 80px; } /* Ảnh */
-        .table thead th:nth-child(2) { width: 40px; } /* ID */
-        .table thead th:nth-child(3) { width: 300px; } /* Title */
-        .table thead th:nth-child(4) { width: 200px; } /* Author */
-        .table thead th:nth-child(5) { width: 80px; } /* Price */
-        .table thead th:nth-child(6) { width: 200px; } /* Category */
-        .table thead th:nth-child(7) { width: auto; } /* Action */
+        .book-card:hover {
+            box-shadow: 0 12px 24px rgba(138, 95, 191, 0.4);
+            transform: translateY(-8px);
+            border-color: #8A5FBF;
+        }
         
-        .table td {
-            white-space: nowrap;
+        .book-image-container {
+            width: 100%;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #1A1A2E, #16213E);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #4A5C6A;
+        }
+        
+        .book-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .book-image-container .no-image-icon {
+            font-size: 5rem;
+            color: #8A5FBF;
+        }
+        
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            height: 50px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            text-overflow: ellipsis;
+            color: #E8E8E8;
+        }
+        
+        .book-author {
+            color: #9DB2BF;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            height: 20px;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 0;
+            white-space: nowrap;
         }
         
-        .table td:nth-child(1) { width: 80px; }
-        .table td:nth-child(2) { width: 50px; }
-        .table td:nth-child(3) { width: 200px; max-width: 200px; }
-        .table td:nth-child(4) { width: 150px; max-width: 150px; }
-        .table td:nth-child(5) { width: 80px; }
-        .table td:nth-child(6) { width: 150px; max-width: 150px; }
-        .table td:nth-child(7) { width: auto; white-space: normal; }
+        .book-category {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6B4A8E, #8A5FBF);
+            color: #F0F0F0;
+            font-weight: 500;
+        }
+        
+        .book-price {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #5FD068;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .book-actions {
+            margin-top: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .book-actions .btn {
+            flex: 1;
+            min-width: 80px;
+            font-size: 0.875rem;
+            padding: 6px 10px;
+            border: none;
+            font-weight: 500;
+        }
+        
+        .book-actions .btn-info {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+        }
+        
+        .book-actions .btn-info:hover {
+            background: linear-gradient(135deg, #357ABD, #2868A8);
+        }
+        
+        .book-actions .btn-primary {
+            background: linear-gradient(135deg, #8A5FBF, #6B4A8E);
+            color: white;
+        }
+        
+        .book-actions .btn-primary:hover {
+            background: linear-gradient(135deg, #6B4A8E, #533470);
+        }
+        
+        .book-actions .btn-danger {
+            background: linear-gradient(135deg, #E94560, #C23550);
+            color: white;
+        }
+        
+        .book-actions .btn-danger:hover {
+            background: linear-gradient(135deg, #C23550, #A02840);
+        }
+        
+        .book-actions .btn-success {
+            background: linear-gradient(135deg, #5FD068, #4AB855);
+            color: white;
+        }
+        
+        .book-actions .btn-success:hover {
+            background: linear-gradient(135deg, #4AB855, #3A9F45);
+        }
+        
+        .book-id-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #E94560, #C23550);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+        
+        .sort-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(145deg, #253342, #2C3E50);
+            border-radius: 8px;
+            border: 1px solid #4A5C6A;
+        }
+        
+        .sort-section a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #9DB2BF;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .sort-section a:hover {
+            color: #8A5FBF;
+            text-shadow: 0 0 8px rgba(138, 95, 191, 0.5);
+        }
+        
+        .sort-section strong {
+            color: #E8E8E8;
+        }
     </style>
 </head>
 <body class="d-flex flex-column" style="min-height: 100vh;">
@@ -62,8 +200,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         
-        <div class="card shadow-lg mb-4" style="overflow: visible;">
-            <div class="card-header py-3" style="overflow: visible;">
+        <div class="card shadow-lg mb-4">
+            <div class="card-header py-3">
                 <div class="row align-items-center">
                     <div class="col-md-3">
                         <h2 class="mb-0"><i class="bi bi-book"></i> My Book List</h2>
@@ -81,11 +219,11 @@
                     </div>
                     <div class="col-md-4 text-end" sec:authorize="hasAuthority('ADMIN')">
                         <!-- Excel Actions -->
-                        <div class="btn-group dropend" role="group">
+                        <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-file-earmark-excel"></i> Excel
                             </button>
-                            <ul class="dropdown-menu" style="z-index: 1050;">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="/books/export">
                                     <i class="bi bi-download"></i> Export to Excel
                                 </a></li>
@@ -100,62 +238,82 @@
                         </div>
                     </div>
                 </div>
-                </div>
             </div>
             
-            <div class="card-body p-0">
-                <div th:if="${keyword != null}" class="alert alert-info m-3" role="alert">
+            <div class="card-body p-4">
+                <div th:if="${keyword != null}" class="alert alert-info" role="alert">
                     <i class="bi bi-info-circle"></i> Search results for: <strong th:text="${keyword}"></strong>
                     <span class="badge bg-primary ms-2" th:text="${#lists.size(books)} + ' result(s)'"></span>
                 </div>
                 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th><i class="bi bi-image"></i> Ảnh</th>
-                                <th><a th:href="@{/books(pageNo=${currentPage}, sortBy='id')}"><i class="bi bi-hash"></i> Id</a></th>
-                                <th><a th:href="@{/books(pageNo=${currentPage}, sortBy='title')}"><i class="bi bi-book"></i> Title</a></th>
-                                <th><a th:href="@{/books(pageNo=${currentPage}, sortBy='author')}"><i class="bi bi-person"></i> Author</a></th>
-                                <th><a th:href="@{/books(pageNo=${currentPage}, sortBy='price')}"><i class="bi bi-cash"></i> Price</a></th>
-                                <th><a th:href="@{/books(pageNo=${currentPage}, sortBy='category')}"><i class="bi bi-tag"></i> Category</a></th>
-                                <th><i class="bi bi-gear"></i> Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                <tr th:each="book : ${books}">
-                    <td style="vertical-align: middle;">
-                        <img th:if="${book.images != null && !book.images.isEmpty()}" 
-                             th:src="@{${book.images[0].imageUrl}}" 
-                             alt="Book thumbnail" 
-                             style="width: 60px; height: 80px; object-fit: cover; border-radius: 4px;">
-                        <i th:unless="${book.images != null && !book.images.isEmpty()}" 
-                           class="bi bi-book" 
-                           style="font-size: 2rem; color: #9D44C0;"></i>
-                    </td>
-                    <td style="vertical-align: middle;" th:text="${book.getId()}"></td>
-                    <td style="vertical-align: middle;" th:text="${book.getTitle()}"></td>
-                    <td style="vertical-align: middle;" th:text="${book.getAuthor()}"></td>
-                    <td style="vertical-align: middle;" th:text="${book.getPrice()}"></td>
-                    <td style="vertical-align: middle;" th:text="${book.getCategory().getName()}"></td>
-                    <td style="vertical-align: middle;">
-                        <a class="btn btn-info btn-sm" th:href="@{/books/{id}(id=${book.getId()})}">Details</a>
-                        <a class="btn btn-primary btn-sm" th:href="@{/books/edit/{id}(id=${book.getId()})}" sec:authorize="hasAuthority('ADMIN')">Edit</a>
-                        <button class="btn btn-danger btn-sm delete-book-btn" th:attr="data-book-id=${book.getId()}, data-book-title=${book.getTitle()}" sec:authorize="hasAuthority('ADMIN')">Delete</button>
-                        <form th:action="@{/books/add-to-cart}" method="post" class="d-inline" sec:authorize="hasAuthority('USER')">
-                            <input type="hidden" name="id" th:value="${book.getId()}">
-                            <input type="hidden" name="name" th:value="${book.getTitle()}">
-                            <input type="hidden" name="price" th:value="${book.getPrice()}">
-                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to add this book to cart?')">
-                                <i class="bi bi-cart-plus"></i> Add to cart
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        </div>
-        </div>
+                <!-- Sort Section -->
+                <div class="sort-section">
+                    <i class="bi bi-sort-down"></i> <strong>Sort by:</strong>
+                    <a th:href="@{/books(pageNo=${currentPage}, sortBy='id')}"><i class="bi bi-hash"></i> ID</a>
+                    <a th:href="@{/books(pageNo=${currentPage}, sortBy='title')}"><i class="bi bi-book"></i> Title</a>
+                    <a th:href="@{/books(pageNo=${currentPage}, sortBy='author')}"><i class="bi bi-person"></i> Author</a>
+                    <a th:href="@{/books(pageNo=${currentPage}, sortBy='price')}"><i class="bi bi-cash"></i> Price</a>
+                    <a th:href="@{/books(pageNo=${currentPage}, sortBy='category')}"><i class="bi bi-tag"></i> Category</a>
+                </div>
+                
+                <!-- Books Grid -->
+                <div class="row g-4">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3" th:each="book : ${books}">
+                        <div class="book-card position-relative">
+                            <span class="book-id-badge" th:text="'#' + ${book.getId()}"></span>
+                            
+                            <div class="book-image-container">
+                                <img th:if="${book.images != null && !book.images.isEmpty()}" 
+                                     th:src="@{${book.images[0].imageUrl}}" 
+                                     th:alt="${book.getTitle()}">
+                                <i th:unless="${book.images != null && !book.images.isEmpty()}" 
+                                   class="bi bi-book no-image-icon"></i>
+                            </div>
+                            
+                            <div class="book-category" th:text="${book.getCategory().getName()}"></div>
+                            
+                            <h5 class="book-title" th:text="${book.getTitle()}" th:title="${book.getTitle()}"></h5>
+                            
+                            <div class="book-author" th:text="${book.getAuthor()}" th:title="${book.getAuthor()}">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            
+                            <div class="book-price">
+                                <i class="bi bi-currency-dollar"></i><span th:text="${book.getPrice()}"></span>
+                            </div>
+                            
+                            <div class="book-actions">
+                                <a class="btn btn-info btn-sm" th:href="@{/books/{id}(id=${book.getId()})}">
+                                    <i class="bi bi-eye"></i> Details
+                                </a>
+                                <a class="btn btn-primary btn-sm" th:href="@{/books/edit/{id}(id=${book.getId()})}" sec:authorize="hasAuthority('ADMIN')">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                <button class="btn btn-danger btn-sm delete-book-btn w-100" 
+                                        th:attr="data-book-id=${book.getId()}, data-book-title=${book.getTitle()}" 
+                                        sec:authorize="hasAuthority('ADMIN')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                                <form th:action="@{/books/add-to-cart}" method="post" class="w-100" sec:authorize="hasAuthority('USER')">
+                                    <input type="hidden" name="id" th:value="${book.getId()}">
+                                    <input type="hidden" name="name" th:value="${book.getTitle()}">
+                                    <input type="hidden" name="price" th:value="${book.getPrice()}">
+                                    <button type="submit" class="btn btn-success btn-sm w-100" onclick="return confirm('Are you sure you want to add this book to cart?')">
+                                        <i class="bi bi-cart-plus"></i> Add to cart
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div class="col-12 text-center py-5" th:if="${#lists.isEmpty(books)}">
+                        <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+                        <h4 class="mt-3 text-muted">No books found</h4>
+                        <p class="text-muted">Try adjusting your search criteria</p>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <nav aria-label="Page navigation">
@@ -256,17 +414,24 @@
                         `;
                         document.querySelector('.container.my-5').insertBefore(alertDiv, document.querySelector('.card'));
                         
-                        // Remove the row from table with animation
-                        const row = this.closest('tr');
-                        row.style.transition = 'opacity 0.3s';
-                        row.style.opacity = '0';
+                        // Remove the card with animation
+                        const card = this.closest('.col-12');
+                        card.style.transition = 'opacity 0.3s, transform 0.3s';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.8)';
                         setTimeout(() => {
-                            row.remove();
+                            card.remove();
                             
-                            // If no more books, show message
-                            const tbody = document.querySelector('tbody');
-                            if (tbody.children.length === 0) {
-                                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><i class="bi bi-inbox"></i> No books found</td></tr>';
+                            // If no more books, show empty state
+                            const booksGrid = document.querySelector('.row.g-4');
+                            if (booksGrid.children.length === 0) {
+                                booksGrid.innerHTML = `
+                                    <div class="col-12 text-center py-5">
+                                        <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+                                        <h4 class="mt-3 text-muted">No books found</h4>
+                                        <p class="text-muted">Try adjusting your search criteria</p>
+                                    </div>
+                                `;
                             }
                         }, 300);
                         
@@ -287,7 +452,7 @@
                         
                         // Re-enable button
                         this.disabled = false;
-                        this.innerHTML = 'Delete';
+                        this.innerHTML = '<i class="bi bi-trash"></i> Delete';
                         
                         // Auto dismiss alert after 5 seconds
                         setTimeout(() => {
